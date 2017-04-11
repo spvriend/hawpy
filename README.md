@@ -70,7 +70,7 @@ values are separated by spaces and organized into columns.
 - rscan is a one-motor relative-position scan.
 - timescan is an indefinite time-lapse scan.
     
-### Scan syntaxes
+### Scan syntaxes:
 
     ascan  motor start finish  intervals time
     a2scan  m1 s1 f1  m2 s1 f2  intervals time
