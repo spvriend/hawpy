@@ -61,7 +61,7 @@ The remaining lines of the spec data file contain the numerical data
 for all motors and counters at each time interval during the scan. The 
 values are separated by spaces and organized into columns.
 
-###Scan types: 
+### Scan types: 
 
 - ascan is a single-motor absolute-position scan. 
 - a2scan is a two-motor absolute-position scan.
@@ -83,34 +83,34 @@ values are separated by spaces and organized into columns.
 
 "*" indicates advanced functionality to be implemented later on.
 
-From SPEC_REIXSloader:
+### From SPEC_REIXSloader:
 
-    - Command to select a folder which contains spec data file.
-    - Command to load spec data file.
-    - Progress indicator is shown as data file is loaded.
-    - A list of scan headers from the file is generated.
-    - Several scan parameters are read and displayed from the
-        currently highlighted scan header.
-    - Loader automatically determines the appropriate x-axis based on
-        the scan header.
-    - A list of possible y-axes is presented. 
-    - The user can opt to generate multiple plots by selecting multiple
-        y-axis options and using the "Display" command.
-    - The user can opt to append an additional trace to an existing plot
-        by selecting a new y-axis and using the "Append" command.
+- Command to select a folder which contains spec data file.
+- Command to load spec data file.
+- Progress indicator is shown as data file is loaded.
+- A list of scan headers from the file is generated.
+- Several scan parameters are read and displayed from the
+    currently highlighted scan header.
+- Loader automatically determines the appropriate x-axis based on
+    the scan header.
+- A list of possible y-axes is presented. 
+- The user can opt to generate multiple plots by selecting multiple
+    y-axis options and using the "Display" command.
+- The user can opt to append an additional trace to an existing plot
+    by selecting a new y-axis and using the "Append" command.
         
-From ATools:
+### From ATools:
 
-    - Command to merge arbitrarily many graphs with identical axes 
-        onto the same plot. The user can select the graph from which
-        the new merged graph should inherit features.
-    - *Command to plot T-scan.
-    - *Command to fix theta scan relative to H, K, or L. (Switch x-axis)
-    - *Command to order scans by T. (For vertical scan stack.)
-    - *Commands to format graphs in specific ways.
-    - *Command to subtract background noise from graph.
-    - *Command to subtract hidden polynomial noise from graph.
-    - *Command to perform Lorentzian fit to graph.
-    - *Command to return the fit parameters.
-    - *Command to export visible graphs as PDFs.
-        
+- Command to merge arbitrarily many graphs with identical axes 
+    onto the same plot. The user can select the graph from which
+    the new merged graph should inherit features.
+- *Command to plot T-scan.
+- *Command to fix theta scan relative to H, K, or L. (Switch x-axis)
+- *Command to order scans by T. (For vertical scan stack.)
+- *Commands to format graphs in specific ways.
+- *Command to subtract background noise from graph.
+- *Command to subtract hidden polynomial noise from graph.
+- *Command to perform Lorentzian fit to graph.
+- *Command to return the fit parameters.
+- *Command to export visible graphs as PDFs.
+    
