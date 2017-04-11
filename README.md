@@ -61,23 +61,24 @@ The remaining lines of the spec data file contain the numerical data
 for all motors and counters at each time interval during the scan. The 
 values are separated by spaces and organized into columns.
 
-Scan types: 
-    - ascan is a single-motor absolute-position scan. 
-    - a2scan is a two-motor absolute-position scan.
-    - Escan is an energy scan.
-    - mesh is a nested two-motor absolute-position scan.
-    - rscan is a one-motor relative-position scan.
-    - timescan is an indefinite time-lapse scan.
-    
-Scan syntaxes
-    - ascan  motor start finish  intervals time
-    - a2scan  m1 s1 f1  m2 s1 f2  intervals time
-    - Escan start end intervals time
-    - mesh  m1 s1 f1 intervals1  m2 s2 f2 intervals2  time
-    - rscan motor s1 f1 intervals1 f2 intervals2 f3 intervals3 [...] time
-    - timescan count_time sleep_time
+###Scan types: 
 
- 
+- ascan is a single-motor absolute-position scan. 
+- a2scan is a two-motor absolute-position scan.
+- Escan is an energy scan.
+- mesh is a nested two-motor absolute-position scan.
+- rscan is a one-motor relative-position scan.
+- timescan is an indefinite time-lapse scan.
+    
+### Scan syntaxes
+
+    ascan  motor start finish  intervals time
+    a2scan  m1 s1 f1  m2 s1 f2  intervals time
+    Escan start end intervals time
+    mesh  m1 s1 f1 intervals1  m2 s2 f2 intervals2  time
+    rscan motor s1 f1 intervals1 f2 intervals2 f3 intervals3 [...] time
+    timescan count_time sleep_time
+
 ## Desired Functionality:
 
 "*" indicates advanced functionality to be implemented later on.
