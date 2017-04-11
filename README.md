@@ -3,7 +3,7 @@ Silas Vriend. Winter 2017.
 
 A python module for reading, storing, and plotting spec data files.
 
-## Project Overview:
+## Project Overview
  
 The goal is to write a python module which can read in data
 from a spec file, store it in a python object, and then perform 
@@ -25,14 +25,14 @@ Brookhaven National Laboratory could be modified to suit the
 needs of the group.
     
     
-## Technical Specifications:
+## Technical Specifications
     
 The package will be written in python 2.7.13.  The package will
 take advantage of several modules from the SciPy stack, via the
 Anaconda distribution.
     
     
-## spec Data File Structure:
+## spec Data File Structure
 
 spec data files are ASCII files containing two types of lines:
 header lines, and raw numerical data lines. Header lines are preceded 
@@ -79,7 +79,7 @@ values are separated by spaces and organized into columns.
     rscan motor s1 f1 intervals1 f2 intervals2 f3 intervals3 [...] time
     timescan count_time sleep_time
 
-## Desired Functionality:
+## Desired Functionality
 
 "*" indicates advanced functionality to be implemented later on.
 
