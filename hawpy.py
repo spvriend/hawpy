@@ -230,10 +230,11 @@ class SpecDataFile(object):
         return
 
     def read_header(self):
-        """Set attributes based on information in the scan header.
+        """Set attributes based on information in the file header.
 
-        Currently, this only reads in the names of the motors as contained
-        on #O control lines.
+        Currently, this reads in the names of the motors as contained
+        on #O control lines, and generates a dict which maps from motor
+        mnemonics to motor names.
 
         """
 
