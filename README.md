@@ -39,7 +39,7 @@ header lines, and raw numerical data lines. Header lines are preceded
 by a # symbol. There are several different types of headers:
     
     #F      filename
-    #E      Unix time
+    #E      Unix epoch time
     #D      Gregorian calendar date
     #C      comment line
     
@@ -50,14 +50,14 @@ by a # symbol. There are several different types of headers:
     #j_     counter name mnemonics
     
     #S      scan header info
-    #T      data point time interval
+    #T      time interval per data point
     #G_     initial scan geometry information
     #Q      initial reciprocal lattice coordinates
-    #P_     initial motor settings given in same order as #O_
-    #N      number of data columns
+    #P_     initial motor settings (given in same order as in #O_ lines)
+    #N      number of data columns in the scan
     #L      data column labels
     
-The remaining lines of the spec data file contain the numerical data
+The remaining lines of the spec data file contain raw numerical data
 for all motors and counters at each time interval during the scan. The 
 values are separated by spaces and organized into columns.
 
@@ -71,6 +71,8 @@ values are separated by spaces and organized into columns.
 - timescan is an indefinite time-lapse scan.
     
 ### Scan syntaxes:
+
+Note the spacing between select words.
 
     ascan  motor start finish  intervals time
     a2scan  m1 s1 f1  m2 s1 f2  intervals time
@@ -86,7 +88,7 @@ values are separated by spaces and organized into columns.
 ### From SPEC_REIXSloader:
 
 - Command to select a folder which contains the spec data file.
-- Command to load spec data file.
+- Command to load a spec data file.
 - Progress indicator is shown as data file is loaded.
 - A list of scan headers from the file is generated and displayed.
 - Several scan parameters are read and displayed from the
@@ -107,7 +109,7 @@ values are separated by spaces and organized into columns.
 - *Command to plot T-scan.
 - *Command to fix theta scan relative to H, K, or L. (Switch x-axis)
 - *Command to order scans by T. (For vertical scan stack.)
-- *Commands to format graphs in specific ways.
+- *Commands to format graphs in predetermined ways.
 - *Command to subtract background noise from graph.
 - *Command to subtract hidden polynomial noise from graph.
 - *Command to perform Lorentzian fit to graph.
