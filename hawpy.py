@@ -327,12 +327,12 @@ class SpecDataFile(object):
         start_scan = min(self.scan_index.keys())
         end_scan = max(self.scan_index.keys())
 
-        statistics = ''
-        statistics += head + 'Spec file contains {} scans.\n'.format(file_length)
-        statistics += head + 'Start scan = {}\n'.format(start_scan)
-        statistics += head + 'End scan = {}\n'.format(end_scan)
+        stats = ''
+        stats += head + 'Spec file contains {} scans.\n'.format(file_length)
+        stats += head + 'Start scan = {}\n'.format(start_scan)
+        stats += head + 'End scan = {}\n'.format(end_scan)
 
-        return statistics
+        return stats
 
 class SpecScan(object):
     """This class represents a single scan from the data file.
