@@ -114,6 +114,9 @@ class SpecDataFile(object):
     motors : list
         A list of the motors found in #O headers within the spec file.
 
+    motormap : dict
+        A dict which maps motor mnemonics to motor names.
+        
     scan_objects : dict
         A dict mapping scan numbers to SpecScan objects.
 
@@ -122,9 +125,11 @@ class SpecDataFile(object):
     def __init__(self, fn):
         """Initialize an instance of the SpecDataFile class."""
         self.filename = fn
+        self.file = open(self.filename, 'rb')
         self.scan_index = {}
         self.motors = []
-        self.file = open(self.filename, 'rb')
+        self.motormap = {}
+        self.scan_objects = {}
 
         self._load_spec_file()
         return
@@ -155,10 +160,13 @@ class SpecDataFile(object):
         if __verbose__:
             print "**** Opening spec data file {}.".format(self.filename)
 
+        if self.file.closed:
+            self.file = open(self.filename, 'rb')
+
         self.index()
         self.read_header()
-
-        self.scan_objects = {}
+        
+        self.file.close()
         return
 
     def _moveto(self, item):
