@@ -171,6 +171,9 @@ class SpecDataFile(object):
 
     def _moveto(self, item):
         # Move to the location of the start of the scan in the data file.
+        if self.file.closed:
+            self.file = open(self.filename, 'rb')
+
         if item in self.scan_index:
             self.file.seek(self.scan_index[item])
         else:
@@ -196,6 +199,7 @@ class SpecDataFile(object):
             self._moveto(item)
             self.scan_objects[item] = SpecScan(self, set_labels)
 
+        self.file.close()
         return self.scan_objects[item]
 
     def get_all(self):
