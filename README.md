@@ -1,15 +1,15 @@
 # hawpy
 Silas Vriend. Hawthorn Research Group. Winter 2017.
 
-A python module for reading, storing, and plotting spec data files.
+A Python module for reading, storing, and plotting spec data files.
 
 ## Project Overview
  
-The objective is to write a python package which can read in data
-from a spec file, store it as a python object, and then carry out plotting
+The objective is to write a Python package which can read in data
+from a spec file, store it as a Python object, and then carry out plotting
 routines according to user-specified parameters.
 
-Ideally, this python module would mimic the functionality of the 
+Ideally, this Python module would mimic the functionality of the 
 SPEC_REIXSloader and ATools Igor procedures which were written by 
 previous members of the Hawthorn Research Group.
 
@@ -27,7 +27,7 @@ the needs of the group.
     
 ## Technical Specifications
     
-The package will be written in python 2.7.13.  The package will
+The package will be written in Python 2.7.13.  The package will
 take advantage of several modules from the SciPy stack, via the
 [Anaconda distribution](https://www.continuum.io/downloads).
     
