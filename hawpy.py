@@ -47,44 +47,26 @@ from scipy.interpolate import griddata
 __verbose__ = True
 
 
-def to_tuple(item):
-    """Convert the scan item to a tuple, unless it isn't the right type.
+def get_mesh_dims(scan):
+    """Return a tuple containing the dimensions of the mesh grid.
     
     Parameters
     ----------
-    item : int or float or list or array or tuple
-        `item` gives the scan(s) which are to be processed.
+    scan : SpecScan
+        `scan` is the scan to be checked.
         
     Returns
     -------
-    items : tuple of int
-        `items` contains the scan number(s) of the scan(s) to be processed.
+    mesh_dims : tuple of int
+        The x and y dimensions of the mesh grid.
     
     """
     
-    err_mssg = 'item must be <int>, <float>, <list>,\
-                 <array> or <tuple>.'
-    if isinstance(item, int):
-        items = (item,)
-        return items
-    elif isinstance(item, float):
-        items = (int(item),)
-        return items
-    elif isinstance(item, list):
-        items = tuple(item)
-        return items
-    elif isinstance(item, np.ndarray):
-        items = item.tolist()
-        return items
-    else:
-        raise Exception(err_mssg)
-
-def get_mesh_dims(scan):
-    """Return a tuple containing the dimensions of the mesh grid."""
     mesh_cmd = scan.header.scan_cmd.split()
     xint = int(mesh_cmd[4])
     yint = int(mesh_cmd[8])
-    return xint, yint
+    mesh_dims = (xint, yint)
+    return mesh_dims
 
 def istwod(scan):
     """Return True if the scan is a mesh scan."""
