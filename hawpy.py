@@ -348,34 +348,33 @@ class SpecScan(object):
     identifiers for #G0 and #G1. The interpretation of the remaining #G
     control lines could come straight from Stuart Wilkins' pyspec package.
 
-    Attributes:
+    Parameters
+    ----------
+    specfile : SpecDataFile         
+        Instance of a spec data file.
+    item : int              
+        The scan number of the scan to read in.
+    set_labels : bool, optional            
+        If true, set motor labels as keys in the dict of class variables.
+    
+    Attributes
+    ----------
+    set_labels : bool
+        Decides whether motor labels are passed from data file to scan.
 
-        set_labels : bool
-            Decides whether motor labels are passed from data file to scan.
+    specfile : SpecDataFile
+        The spec data file from which the scan is to be read.
 
-        specfile : SpecDataFile
-            The spec data file from which the scan is to be read.
+    header : SpecScanHeader
+        An object containing information from the header.
 
-        header : SpecScanHeader
-            An object containing information from the header.
-
-        data : SpecScanData
-            An object containing the scan data.
+    data : SpecScanData
+        An object containing the scan data.
 
     """
 
-    def __init__(self, specfile, set_labels=True, mask=None):
-        """Initialize an instance of the SpecScan class.
-
-        Parameters
-        ----------
-        specfile : SpecDataFile         Instance of a spec data file.
-        item : int or list              The scan number(s) to read in.
-        set_labels : bool               If true, set motor labels as keys in
-                                            the dict of class variables.
-
-        """
-
+    def __init__(self, specfile, set_labels=True):
+        """Initialize an instance of the SpecScan class."""
         self.specfile = specfile
         self.header = SpecScanHeader()
         self.data = SpecScanData()
