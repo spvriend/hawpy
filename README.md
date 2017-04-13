@@ -1,11 +1,8 @@
 # hawpy
-Silas Vriend. Winter 2017.
-
-Hawthorn Research Group.
-
-Department of Physics and Astronomy.
-
-University of Waterloo.
+- Silas Vriend. Winter 2017.
+- Hawthorn Research Group.
+- Department of Physics and Astronomy.
+- University of Waterloo.
 
 A Python module for reading, storing, and plotting spec data files.
 
