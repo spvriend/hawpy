@@ -48,7 +48,20 @@ __verbose__ = True
 
 
 def to_tuple(item):
-    """Convert the scan item to a tuple, unless it isn't the right type."""
+    """Convert the scan item to a tuple, unless it isn't the right type.
+    
+    Parameters
+    ----------
+    item : int or float or list or array or tuple
+        `item` gives the scan(s) which are to be processed.
+        
+    Returns
+    -------
+    items : tuple of int
+        `items` contains the scan number(s) of the scan(s) to be processed.
+    
+    """
+    
     err_mssg = 'item must be <int>, <float>, <list>,\
                  <array> or <tuple>.'
     if isinstance(item, int):
