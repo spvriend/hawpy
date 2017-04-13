@@ -1,5 +1,5 @@
 # hawpy.py (c) Silas Vriend 2017
-# Modified from spec.py from the pyspec package (c) Stuart B. Wilkins 2008
+# Modified from the pyspec package (c) Stuart B. Wilkins 2008
 #
 # Silas Vriend. Hawthorn Research Group. Winter 2017.
 # University of Waterloo Department of Physics and Astronomy.
@@ -10,29 +10,19 @@ This module defines classes for reading spec data files into python,
 extracting data from specific scans, and creating standard x- vs. y-axis
 plots or two-dimensional mesh images.
 
-The interface for the module is as follows:
-
-    (Insert description of interface here.)
-
-Please note that in method documentation, the following apply:
-
-    'self' <--> An instance of the class object.
-    'args' <--> Arguments.
-    'kwargs' <--> Keyword arguments.
-
 Classes:
 
     SpecDataFile :
-        Creates a spec-specific file object, with scan indexing built in.
+        Acts as a spec-specific file object, with scan indexing built in.
 
     SpecScan :
-        Creates an object from one or more scans, which may be plotted.
+        A class which represents one or more scans, which may be plotted.
 
     SpecScanHeader :
-        Contains the information from the scan header.
+        Contains information from the scan header for a SpecScan object.
 
     SpecScanData :
-        A mapping-type class for containing the data of a SpecScan object.
+        Contains the raw numerical data for a SpecScan object.
 
     SpecPlot :
         Contains methods to plot standard x- vs. y-axis data and to plot
