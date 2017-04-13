@@ -113,4 +113,3 @@ values are separated by spaces and organized into columns.
 - *Command to perform Lorentzian fit to graph.
 - *Command to return the fit parameters.
 - *Command to export visible graphs as PDFs.
-\n
