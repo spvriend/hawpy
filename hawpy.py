@@ -1,34 +1,38 @@
 # hawpy.py (c) Silas Vriend 2017
-# Modified from the pyspec package (c) Stuart B. Wilkins 2008
+# Modified from spec.py from the pyspec package (c) Stuart B. Wilkins 2008
 #
 # Silas Vriend. Hawthorn Research Group. Winter 2017.
 # University of Waterloo Department of Physics and Astronomy.
 
 """A module for reading, storing, and plotting spec data files.
 
-This module defines classes for reading spec data files into Python,
+This module defines classes for reading spec data files into python,
 extracting data from specific scans, and creating standard x- vs. y-axis
 plots or two-dimensional mesh images.
 
-The __verbose__ parameter controls whether the module prints output to the
-terminal when a script is run. To turn output off, add the following line to
-your script:
-    
-    hawpy.__verbose__ = False
+The interface for the module is as follows:
+
+    (Insert description of interface here.)
+
+Please note that in method documentation, the following apply:
+
+    'self' <--> An instance of the class object.
+    'args' <--> Arguments.
+    'kwargs' <--> Keyword arguments.
 
 Classes:
 
     SpecDataFile :
-        Acts as a spec-specific file object, with scan indexing built in.
+        Creates a spec-specific file object, with scan indexing built in.
 
     SpecScan :
-        A class which represents one or more scans, which may be plotted.
+        Creates an object from one or more scans, which may be plotted.
 
     SpecScanHeader :
-        Contains information from the scan header for a SpecScan object.
+        Contains the information from the scan header.
 
     SpecScanData :
-        Contains the raw numerical data for a SpecScan object.
+        A mapping-type class for containing the data of a SpecScan object.
 
     SpecPlot :
         Contains methods to plot standard x- vs. y-axis data and to plot
@@ -47,120 +51,86 @@ from scipy.interpolate import griddata
 __verbose__ = True
 
 
+def to_tuple(item):
+    """Convert the scan item to a tuple, unless it isn't the right type."""
+    err_mssg = 'item must be <int>, <float>, <list>,\
+                 <array> or <tuple>.'
+    if isinstance(item, int):
+        items = (item,)
+        return items
+    elif isinstance(item, float):
+        items = (int(item),)
+        return items
+    elif isinstance(item, list):
+        items = tuple(item)
+        return items
+    elif isinstance(item, np.ndarray):
+        items = item.tolist()
+        return items
+    else:
+        raise Exception(err_mssg)
+
 def get_mesh_dims(scan):
-    """Return a tuple containing the dimensions of the mesh grid.
-    
-    Parameters
-    ----------
-    scan : SpecScan
-        `scan` is the scan to be checked.
-        
-    Returns
-    -------
-    mesh_dims : tuple of int
-        The x and y dimensions of the mesh grid.
-    
-    """
-    
+    """Return a tuple containing the dimensions of the mesh grid."""
     mesh_cmd = scan.header.scan_cmd.split()
     xint = int(mesh_cmd[4])
     yint = int(mesh_cmd[8])
-    mesh_dims = (xint, yint)
-    return mesh_dims
+    return xint, yint
 
 def istwod(scan):
-    """Return True if the scan is a mesh scan.
-    
-    Parameters
-    ----------
-    scan : SpecScan
-        The SpecScan object to check.
-        
-    Returns
-    -------
-    bool
-        A bool indicating whether the scan is a mesh scan.
-        
-    """
-    
+    """Return True if the scan is a mesh scan."""
     return scan.header.scan_type.strip() == 'mesh'
 
 
 class SpecDataFile(object):
-    """Acts as a spec-specific file object.
+    """This class represents a spec-specific file object.
 
-    To create a SpecScan object, call SpecDataFile[num], where `num` is
-    the scan number as an integer, or a list of integer scan numbers.
+    To create a SpecScan object, call SpecDataFile[num], where 'num' is
+    the scan number as an integer, or a list of multiple scan numbers as
+    integers.
 
     To print a string of statistics on the spec file, pass the SpecDataFile
     instance in a print statement.
 
-    Parameters
-    ----------
-    fn : str
-        The name of the spec data file from which to read data.
-    
-    Attributes
-    ----------
-    file : file object
-        A temporary file object, created whenever the file is read.    
-        
-    filename : str
-        The name of the spec data file.
-        
-    scan_index : dict
-        A dict mapping scan numbers to scan locations within the file.
+    Attributes:
 
-    motors : list
-        A list of the motors found in #O headers within the spec file.
+        file : file object
+            A temporary file object, created whenever the file is read.
 
-    motormap : dict
-        A dict which maps motor mnemonics to motor names.
-        
-    scan_objects : dict
-        A dict mapping scan numbers to SpecScan objects.
+        filename : str
+            The name of the spec data file.
+
+        scan_index : dict
+            A dict mapping scan numbers to scan locations within the file.
+
+        mode : str
+            The mode for handling multiple scan objects. Defaults to 'concat'.
+
+        motors : list
+            A list of the motors found in #O headers within the spec file.
+
+        scan_objects : dict
+            A dict mapping scan numbers to SpecScan objects.
 
     """
 
     def __init__(self, fn):
         """Initialize an instance of the SpecDataFile class."""
         self.filename = fn
-        self.file = open(self.filename, 'rb')
+        self.mode = 'concat'
         self.scan_index = {}
         self.motors = []
-        self.motormap = {}
-        self.scan_objects = {}
+        self.file = open(self.filename, 'rb')
 
         self._load_spec_file()
         return
 
     def __getitem__(self, item):
-        """Call get_scan(item) when self[item] is called.
-        
-        Parameters
-        ----------
-        item : int
-            The scan to be returned.
-            
-        Returns
-        -------
-        SpecScan
-            A scan object corresponding to the scan number in item.
-            
-        """
-
+        """Call get_scan(item) when self[item] is called."""
         return self.get_scan(item, set_labels=True)
 
     def __str__(self):
-        """Call show() when self is passed in a print statement.
-        
-        Returns
-        -------
-        str
-            A string representation of the data file.
-            
-        """
-        
+        """Call show() when self is passed in a print statement."""
         return self.show()
 
     def _load_spec_file(self):
@@ -168,13 +138,10 @@ class SpecDataFile(object):
         if __verbose__:
             print "**** Opening spec data file {}.".format(self.filename)
 
-        if self.file.closed:
-            self.file = open(self.filename, 'rb')
-
         self.index()
         self.read_header()
-        
-        self.file.close()
+
+        self.scan_objects = {}
         return
 
     def _moveto(self, item):
@@ -192,53 +159,60 @@ class SpecDataFile(object):
                 raise Exception('Scan {} is not in the file.'.format(item))
 
     def get_line(self):
-        """Return the next line from the data file.
-        
-        Returns
-        -------
-        line : str
-            The next line from the data file.
-            
-        """
-        
+        """Return the next line from the data file."""
         line = self.file.readline()
         return line
 
-    def get_scan(self, item, set_labels=True, reread=False):
-        """Create a single SpecScan object for the desired scan.
-        
-        Parameters
-        ----------
-        item : int
-            The scan number of the desired scan.
-        
-        set_labels : bool, optional
-            Indicates whether the label-data column mappings for the scan will
-            be set as attributes of the scan object itself.
-        
-        reread : bool, optional
-            Indicates whether the scan object should reread the scan and
-            generate a new scan object for that scan.
-            
-        Returns
-        -------
-        SpecScan
-            The scan object corresponding to scan number `item`.
-        
-        """
-        
-        if self.file.closed:
-            self.file = open(self.filename, 'rb')
-            
-        if __verbose__:
-            print '**** Reading scan {}.'.format(item)
-            
-        if (item not in self.scan_objects) or (reread is True):
-            self._moveto(item)
-            self.scan_objects[item] = SpecScan(self, set_labels)
+    def get_scan(self, item, mask=None, set_labels=True, reread=False):
+        """Create a single SpecScan object from the desired scan(s).
 
-        self.file.close()
-        return self.scan_objects[item]
+        get_scan either bins or concatenates the scans in the
+        user-provided list, 'item'.
+
+        """
+
+        items = to_tuple(item)
+
+        if mask is None:
+            mask = [None for i in items]
+
+        if len(mask) != len(items):
+            raise Exception('mask list must be same size as item list.')
+
+        # rval is a list of SpecScan objects. 'r' for 'return'.
+        rval = []
+
+        for i, mrow in zip(items, mask):
+            if i < 0:
+                _items = self.scan_index.keys()
+                _items.sort()
+                i = _items[i]
+            if __verbose__:
+                print '**** Reading scan {}.'.format(i)
+            if (i not in self.scan_objects) or (reread is True):
+                self._moveto(i)
+                self.scan_objects[i] = SpecScan(self, set_labels, mask=mrow)
+
+            rval.append(self.scan_objects[i])
+
+        if len(rval) > 1:
+            newscan = copy.deepcopy(rval[0])
+            for i in range(len(rval)-1):
+                if self.mode == 'concat':
+                    # concat is a SpecScan method.
+                    newscan.concat(rval[i+1])
+                elif self.mode == 'bin':
+                    newscan.bin(rval[i+1], binbreak=None)
+                else:
+                    raise Exception('Unknown mode for multiple scans')
+            rval = [newscan]
+
+        return rval[0]
+
+    def get_all(self):
+        """Create a SpecScan object for each scan in the data file."""
+        for scan in self.scan_index:
+            self.get_scan(scan)
 
     def index(self):
         """Read the file to generate the scan_index dict."""
@@ -267,11 +241,10 @@ class SpecDataFile(object):
         return
 
     def read_header(self):
-        """Set attributes based on information in the file header.
+        """Set attributes based on information in the scan header.
 
-        Currently, this reads in the names of the motors as contained
-        on #O control lines, and generates a dict which maps from motor
-        mnemonics to motor names.
+        Currently, this only reads in the names of the motors as contained
+        on #O control lines.
 
         """
 
@@ -280,19 +253,13 @@ class SpecDataFile(object):
 
         self.file.seek(0, 0)
         line = self.file.readline()
-        mnems = []
-        names = []
 
         while (line[0:2] != '#S') and (line != ''):
-            if line[0:2] == '#o':
-                mnems.extend(line.split()[1:])
-            elif line[0:2] == '#O':
-                names.extend(line.split()[1:])
-                self.motors.extend(line.split()[1:])
-            line = self.file.readline()
+            if line[0:2] == '#O':
+                temp = line[4:]
+                self.motors += temp.split()
 
-        for mnem, name in zip(mnems, names):
-            self.motormap[mnem] = name
+            line = self.file.readline()
 
         return
 
@@ -308,31 +275,31 @@ class SpecDataFile(object):
             print '**** Reloading the spec file.'
             self._load_spec_file()
 
+    def set_mode(self, mode='concat'):
+        """Set the mode attribute of the SpecDataFile object."""
+        if mode == 'concat':
+            self.mode = 'concat'
+            print '**** Multiple scans will be concatenated.'
+            return
+        elif mode == 'bin':
+            self.mode = 'bin'
+            print '**** Multiple scans will be binned.'
+            return
+        else:
+            raise Exception('Unknown mode {}.'.format(mode))
+
     def show(self, head='---- '):
-        """Return a string of statistics on the data file.
-        
-        Parameters
-        ----------
-        head : str, optional
-            The sring of characters which precedes each line of information.
-            
-        Returns
-        -------
-        statistics : str
-            A string giving the number of scans, and the first and last scans.
-            
-        """
-        
+        """Return a string of statistics on the data file."""
         file_length = len(self.scan_index)
         start_scan = min(self.scan_index.keys())
         end_scan = max(self.scan_index.keys())
 
-        statistics = ''
-        statistics += head + 'Spec file contains {} scans.\n'.format(file_length)
-        statistics += head + 'Start scan = {}\n'.format(start_scan)
-        statistics += head + 'End scan = {}\n'.format(end_scan)
+        string = ''
+        string += head + 'Spec file contains {} scans.\n'.format(file_length)
+        string += head + 'Start scan = {}\n'.format(start_scan)
+        string += head + 'End scan = {}\n'.format(end_scan)
 
-        return statistics
+        return string
 
 class SpecScan(object):
     """This class represents a single scan from the data file.
