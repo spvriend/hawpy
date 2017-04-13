@@ -69,7 +69,20 @@ def get_mesh_dims(scan):
     return mesh_dims
 
 def istwod(scan):
-    """Return True if the scan is a mesh scan."""
+    """Return True if the scan is a mesh scan.
+    
+    Parameters
+    ----------
+    scan : SpecScan
+        The SpecScan object to check.
+        
+    Returns
+    -------
+    bool
+        A bool indicating whether the scan is a mesh scan.
+        
+    """
+    
     return scan.header.scan_type.strip() == 'mesh'
 
 
