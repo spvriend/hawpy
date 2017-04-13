@@ -110,10 +110,7 @@ class SpecDataFile(object):
         
     scan_index : dict
         A dict mapping scan numbers to scan locations within the file.
-        
-    mode : str
-        The mode for handling multiple scan objects. Defaults to 'concat'.
-        
+
     motors : list
         A list of the motors found in #O headers within the spec file.
 
@@ -125,7 +122,6 @@ class SpecDataFile(object):
     def __init__(self, fn):
         """Initialize an instance of the SpecDataFile class."""
         self.filename = fn
-        self.mode = 'concat'
         self.scan_index = {}
         self.motors = []
         self.file = open(self.filename, 'rb')
@@ -138,13 +134,13 @@ class SpecDataFile(object):
         
         Parameters
         ----------
-        item : int or list of int
-            The scan(s) to be returned.
+        item : int
+            The scan to be returned.
             
         Returns
         -------
         SpecScan
-            A scan object corresponding to the scan number(s) in item.
+            A scan object corresponding to the scan number in item.
             
         """
 
@@ -184,51 +180,15 @@ class SpecDataFile(object):
         line = self.file.readline()
         return line
 
-    def get_scan(self, item, mask=None, set_labels=True, reread=False):
-        """Create a single SpecScan object from the desired scan(s).
+    def get_scan(self, item, set_labels=True, reread=False):
+        """Create a single SpecScan object for the desired scan."""
+        if __verbose__:
+            print '**** Reading scan {}.'.format(item)
+        if (item not in self.scan_objects) or (reread is True):
+            self._moveto(item)
+            self.scan_objects[item] = SpecScan(self, set_labels)
 
-        get_scan either bins or concatenates the scans in the
-        user-provided list, 'item'.
-
-        """
-
-        items = to_tuple(item)
-
-        if mask is None:
-            mask = [None for i in items]
-
-        if len(mask) != len(items):
-            raise Exception('mask list must be same size as item list.')
-
-        # rval is a list of SpecScan objects. 'r' for 'return'.
-        rval = []
-
-        for i, mrow in zip(items, mask):
-            if i < 0:
-                _items = self.scan_index.keys()
-                _items.sort()
-                i = _items[i]
-            if __verbose__:
-                print '**** Reading scan {}.'.format(i)
-            if (i not in self.scan_objects) or (reread is True):
-                self._moveto(i)
-                self.scan_objects[i] = SpecScan(self, set_labels, mask=mrow)
-
-            rval.append(self.scan_objects[i])
-
-        if len(rval) > 1:
-            newscan = copy.deepcopy(rval[0])
-            for i in range(len(rval)-1):
-                if self.mode == 'concat':
-                    # concat is a SpecScan method.
-                    newscan.concat(rval[i+1])
-                elif self.mode == 'bin':
-                    newscan.bin(rval[i+1], binbreak=None)
-                else:
-                    raise Exception('Unknown mode for multiple scans')
-            rval = [newscan]
-
-        return rval[0]
+        return self.scan_objects[item]
 
     def get_all(self):
         """Create a SpecScan object for each scan in the data file."""
