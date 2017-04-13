@@ -271,17 +271,30 @@ class SpecDataFile(object):
             self._load_spec_file()
 
     def show(self, head='---- '):
-        """Return a string of statistics on the data file."""
+        """Return a string of statistics on the data file.
+        
+        Parameters
+        ----------
+        head : str, optional
+            The sring of characters which precedes each line of information.
+            
+        Returns
+        -------
+        statistics : str
+            A string giving the number of scans, and the first and last scans.
+            
+        """
+        
         file_length = len(self.scan_index)
         start_scan = min(self.scan_index.keys())
         end_scan = max(self.scan_index.keys())
 
-        string = ''
-        string += head + 'Spec file contains {} scans.\n'.format(file_length)
-        string += head + 'Start scan = {}\n'.format(start_scan)
-        string += head + 'End scan = {}\n'.format(end_scan)
+        statistics = ''
+        statistics += head + 'Spec file contains {} scans.\n'.format(file_length)
+        statistics += head + 'Start scan = {}\n'.format(start_scan)
+        statistics += head + 'End scan = {}\n'.format(end_scan)
 
-        return string
+        return statistics
 
 class SpecScan(object):
     """This class represents a single scan from the data file.
