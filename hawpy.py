@@ -171,9 +171,6 @@ class SpecDataFile(object):
 
     def _moveto(self, item):
         # Move to the location of the start of the scan in the data file.
-        if self.file.closed:
-            self.file = open(self.filename, 'rb')
-
         if item in self.scan_index:
             self.file.seek(self.scan_index[item])
         else:
@@ -193,8 +190,12 @@ class SpecDataFile(object):
 
     def get_scan(self, item, set_labels=True, reread=False):
         """Create a single SpecScan object for the desired scan."""
+        if self.file.closed:
+            self.file = open(self.filename, 'rb')
+            
         if __verbose__:
             print '**** Reading scan {}.'.format(item)
+            
         if (item not in self.scan_objects) or (reread is True):
             self._moveto(item)
             self.scan_objects[item] = SpecScan(self, set_labels)
