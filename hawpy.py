@@ -189,7 +189,28 @@ class SpecDataFile(object):
         return line
 
     def get_scan(self, item, set_labels=True, reread=False):
-        """Create a single SpecScan object for the desired scan."""
+        """Create a single SpecScan object for the desired scan.
+        
+        Parameters
+        ----------
+        item : int
+            The scan number of the desired scan.
+        
+        set_labels : bool, optional
+            Indicates whether the label-data column mappings for the scan will
+            be set as attributes of the scan object itself.
+        
+        reread : bool, optional
+            Indicates whether the scan object should reread the scan and
+            generate a new scan object for that scan.
+            
+        Returns
+        -------
+        SpecScan
+            The scan object corresponding to scan number `item`.
+        
+        """
+        
         if self.file.closed:
             self.file = open(self.filename, 'rb')
             
