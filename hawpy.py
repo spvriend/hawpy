@@ -6,7 +6,7 @@
 
 """A module for reading, storing, and plotting spec data files.
 
-This module defines classes for reading spec data files into python,
+This module defines classes for reading spec data files into Python,
 extracting data from specific scans, and creating standard x- vs. y-axis
 plots or two-dimensional mesh images.
 
