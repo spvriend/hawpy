@@ -87,34 +87,38 @@ def istwod(scan):
 
 
 class SpecDataFile(object):
-    """This class represents a spec-specific file object.
+    """Acts as a spec-specific file object.
 
-    To create a SpecScan object, call SpecDataFile[num], where 'num' is
-    the scan number as an integer, or a list of multiple scan numbers as
-    integers.
+    To create a SpecScan object, call SpecDataFile[num], where `num` is
+    the scan number as an integer, or a list of integer scan numbers.
 
     To print a string of statistics on the spec file, pass the SpecDataFile
     instance in a print statement.
 
-    Attributes:
-
-        file : file object
-            A temporary file object, created whenever the file is read.
-
-        filename : str
-            The name of the spec data file.
-
-        scan_index : dict
-            A dict mapping scan numbers to scan locations within the file.
-
-        mode : str
-            The mode for handling multiple scan objects. Defaults to 'concat'.
-
-        motors : list
-            A list of the motors found in #O headers within the spec file.
-
-        scan_objects : dict
-            A dict mapping scan numbers to SpecScan objects.
+    Parameters
+    ----------
+    fn : str
+        The name of the spec data file from which to read data.
+    
+    Attributes
+    ----------
+    file : file object
+        A temporary file object, created whenever the file is read.    
+        
+    filename : str
+        The name of the spec data file.
+        
+    scan_index : dict
+        A dict mapping scan numbers to scan locations within the file.
+        
+    mode : str
+        The mode for handling multiple scan objects. Defaults to 'concat'.
+        
+    motors : list
+        A list of the motors found in #O headers within the spec file.
+        
+    scan_objects : dict
+        A dict mapping scan numbers to SpecScan objects.
 
     """
 
