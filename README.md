@@ -1,35 +1,35 @@
 # hawpy
-Silas Vriend. Winter 2017.
+Silas Vriend. Hawthorn Research Group. Winter 2017.
 
 A python module for reading, storing, and plotting spec data files.
 
 ## Project Overview
  
-The goal is to write a python module which can read in data
-from a spec file, store it in a python object, and then perform 
-graphical analysis.
+The objective is to write a python package which can read in data
+from a spec file, store it in a python class, and then carry out plotting
+routines according to user-specified parameters.
 
 Ideally, this python module would mimic the functionality of the 
 SPEC_REIXSloader and ATools Igor procedures which were written by 
 previous members of Dr. Hawthorn's research group.
 
-The end goal is to have a basic, well-documented set of modules
+The package will consist of a basic, well-documented set of modules
 which could be improved upon by future members of the group.
 
-For the first draft of the package, the goal is to have a command
-line interface which would be able to perform some of the basic
+For the first iteration of the package, the goal is to have a command
+line interface which would be able to perform some of the essential
 operations which the group needs to analyze data.
 
-Code from the pyspec package written by Stuart Wilkins at 
-Brookhaven National Laboratory could be modified to suit the
-needs of the group.
+Code from the [pyspec package](https://github.com/stuwilkins/pyspec) written 
+by Stuart Wilkins at Brookhaven National Laboratory could be modified to suit 
+the needs of the group.
     
     
 ## Technical Specifications
     
 The package will be written in python 2.7.13.  The package will
 take advantage of several modules from the SciPy stack, via the
-Anaconda distribution.
+[Anaconda distribution](https://www.continuum.io/downloads).
     
     
 ## spec Data File Structure
@@ -81,14 +81,14 @@ values are separated by spaces and organized into columns.
 
 ## Desired Functionality
 
-"*" indicates advanced functionality to be implemented later on.
+"*" indicates functionality which could be implemented in future iterations.
 
 ### From SPEC_REIXSloader:
 
-- Command to select a folder which contains spec data file.
+- Command to select a folder which contains the spec data file.
 - Command to load spec data file.
 - Progress indicator is shown as data file is loaded.
-- A list of scan headers from the file is generated.
+- A list of scan headers from the file is generated and displayed.
 - Several scan parameters are read and displayed from the
     currently highlighted scan header.
 - Loader automatically determines the appropriate x-axis based on
