@@ -61,7 +61,7 @@ def get_mesh_dims(scan):
         The x and y dimensions of the mesh grid.
     
     """
-    
+
     mesh_cmd = scan.header.scan_cmd.split()
     xint = int(mesh_cmd[4])
     yint = int(mesh_cmd[8])
@@ -82,7 +82,7 @@ def istwod(scan):
         A bool indicating whether the scan is a mesh scan.
         
     """
-    
+
     return scan.header.scan_type.strip() == 'mesh'
 
 
@@ -160,7 +160,7 @@ class SpecDataFile(object):
             A string representation of the data file.
             
         """
-        
+
         return self.show()
 
     def _load_spec_file(self):
@@ -173,7 +173,7 @@ class SpecDataFile(object):
 
         self.index()
         self.read_header()
-        
+
         self.file.close()
         return
 
@@ -185,7 +185,9 @@ class SpecDataFile(object):
             # Try re-indexing the file here.
             if __verbose__:
                 print '**** Re-indexing the spec data file.\n'
+
             self.index()
+
             if item in self.scan_index:
                 self.file.seek(self.scan_index[item])
             else:
@@ -200,7 +202,7 @@ class SpecDataFile(object):
             The next line from the data file.
             
         """
-        
+
         line = self.file.readline()
         return line
 
@@ -226,13 +228,13 @@ class SpecDataFile(object):
             The scan object corresponding to scan number `item`.
         
         """
-        
+
         if self.file.closed:
             self.file = open(self.filename, 'rb')
-            
+
         if __verbose__:
             print '**** Reading scan {}.'.format(item)
-            
+
         if (item not in self.scan_objects) or (reread is True):
             self._moveto(item)
             self.scan_objects[item] = SpecScan(self, set_labels)
@@ -322,7 +324,7 @@ class SpecDataFile(object):
             A string giving the number of scans, and the first and last scans.
             
         """
-        
+
         file_length = len(self.scan_index)
         start_scan = min(self.scan_index.keys())
         end_scan = max(self.scan_index.keys())
@@ -423,8 +425,9 @@ class SpecScan(object):
         self._setcols()
 
         if __verbose__:
-            print '---- Data is {} rows x {} cols.'.format(self.data.raw.shape[0],
-                                                           self.data.raw.shape[1])
+            print '---- Data is {} rows x \
+                  {} cols.'.format(self.data.raw.shape[0],
+                                   self.data.raw.shape[1])
         return None
 
     def __str__(self):
@@ -726,10 +729,10 @@ class SpecPlot(object):
     def doplot(self, norm=False, ycol='ChT_REIXS', mcol='I0_BD3', fmt=''):
         """Generates a plot according to the provided kwargs."""
         twod = istwod(self.scan)
-        
+
         if twod:
             ycol = 'TEY_REIXS'
-        
+
         self.set_x_axes()
         self.check_x_type()
         self.labels_to_indices()
