@@ -270,19 +270,6 @@ class SpecDataFile(object):
             print '**** Reloading the spec file.'
             self._load_spec_file()
 
-    def set_mode(self, mode='concat'):
-        """Set the mode attribute of the SpecDataFile object."""
-        if mode == 'concat':
-            self.mode = 'concat'
-            print '**** Multiple scans will be concatenated.'
-            return
-        elif mode == 'bin':
-            self.mode = 'bin'
-            print '**** Multiple scans will be binned.'
-            return
-        else:
-            raise Exception('Unknown mode {}.'.format(mode))
-
     def show(self, head='---- '):
         """Return a string of statistics on the data file."""
         file_length = len(self.scan_index)
@@ -806,7 +793,7 @@ class SpecPlot(object):
 if __name__ == '__main__': 
     YBCO = SpecDataFile('YBCO_XAS')
     LNSCO = SpecDataFile('LNSCO')
-    
+
     # Test standard plot.
     SCAN1 = LNSCO[298]
     SCAN1.plot()
