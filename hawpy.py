@@ -152,7 +152,15 @@ class SpecDataFile(object):
         return self.get_scan(item, set_labels=True)
 
     def __str__(self):
-        """Call show() when self is passed in a print statement."""
+        """Call show() when self is passed in a print statement.
+        
+        Returns
+        -------
+        str
+            A string representation of the data file.
+            
+        """
+        
         return self.show()
 
     def _load_spec_file(self):
