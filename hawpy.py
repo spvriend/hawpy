@@ -373,7 +373,7 @@ class SpecScan(object):
 
     """
 
-    def __init__(self, specfile, set_labels=True):
+    def __init__(self, specfile, set_labels=True, mask=None):
         """Initialize an instance of the SpecScan class."""
         self.specfile = specfile
         self.header = SpecScanHeader()
