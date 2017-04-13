@@ -1,6 +1,5 @@
-# hawpy.py (c) Stuart B. Wilkins 2008, Silas Vriend 2017
-# Modified from spec.py (c) Stuart B. Wilkins 2008
-# From the pyspec package (c) Stuart B. Wilkins 2008
+# hawpy.py (c) Silas Vriend 2017
+# Modified from spec.py from the pyspec package (c) Stuart B. Wilkins 2008
 #
 # Silas Vriend. Hawthorn Research Group. Winter 2017.
 # University of Waterloo Department of Physics and Astronomy.
@@ -379,8 +378,8 @@ class SpecScan(object):
 
             line = self.specfile.get_line()
 
-        if isinstance(self.data.fulldata, list):
-            self.data.fulldata = np.asarray(self.data)
+        if isinstance(self.data.raw, list):
+            self.data.raw = np.asarray(self.data)
 
         if mask != None:
             if __verbose__:
@@ -391,8 +390,8 @@ class SpecScan(object):
         self._setcols()
 
         if __verbose__:
-            print '---- Data is {} rows x {} cols.'.format(self.data.fulldata.shape[0],
-                                                           self.data.fulldata.shape[1])
+            print '---- Data is {} rows x {} cols.'.format(self.data.raw.shape[0],
+                                                           self.data.raw.shape[1])
         return None
 
     def __str__(self):
@@ -409,14 +408,14 @@ class SpecScan(object):
         """
 
         # If there is at least one row of data,
-        if self.data.fulldata.shape[0] > 0:
+        if self.data.raw.shape[0] > 0:
             # go through each column label
             for i in range(len(self.header.labels)):
                 # and if there is more than one row of data
-                if len(self.data.fulldata.shape) == 2:
+                if len(self.data.raw.shape) == 2:
                     # map the column label to that column of data
                     motor_name = self.header.labels[i]
-                    data_column = self.data.fulldata[:, i]
+                    data_column = self.data.raw[:, i]
                     self.data.cols[motor_name] = data_column
                 else:
                     # Otherwise, map that column label to the one data point.
@@ -569,16 +568,12 @@ class SpecScanData(object):
             A dict mapping motor names to their initial positions, and column
             labels to their corresponding columns (arrays) of data.
 
-        fulldata : NumPy array
+        raw : NumPy array
             A NumPy array containing the scan data as it appears in the file.
 
         cols : dict
             A dict which maps motor names to their initial positions, and
             column labels to their corresponding column arrays of data.
-
-        values : dict
-            A dict mapping column labels to columns of data,
-            as well as motor names to initial positions.
 
         row_nums : NumPy array
             An nx1 array where the nth entry is the integer n, starting at 0.
@@ -593,7 +588,7 @@ class SpecScanData(object):
     def __init__(self):
         """Initializes an instance of the SpecScanData class."""
         self.values = {}
-        self.fulldata = np.array([])
+        self.raw = np.array([])
         self.cols = {}
         self.scan_nums = np.array([])
         self.row_nums = np.array([])
@@ -607,14 +602,14 @@ class SpecScanData(object):
         dataline = map(float, line.strip().split())
         newrow = np.asarray(dataline)
         if len(dataline) != 0:
-            if len(self.fulldata) == 0:
+            if len(self.raw) == 0:
                 # If the SpecScan object has no data already:
-                self.fulldata = newrow
+                self.raw = newrow
             else:
                 # Otherwise, add the new row below the old data.
                 # Note that np.vstack is deprecated in favor of
                 # np.stack and np.concatenate.
-                self.fulldata = np.vstack((self.fulldata, newrow))
+                self.raw = np.vstack((self.raw, newrow))
 
     def get(self, key):
         """Return the value for the given key, if possible."""
@@ -711,9 +706,9 @@ class SpecPlot(object):
         if isinstance(mcol, str):
             mcol = self.scan.header.labels.index(mcol)
 
-        plotx = self.scan.data.fulldata[:, self.xcol]
+        plotx = self.scan.data.raw[:, self.xcol]
         if self.x2col != None:
-            plotx = np.vstack((plotx, self.scan.data.fulldata[:, self.x2col]))
+            plotx = np.vstack((plotx, self.scan.data.raw[:, self.x2col]))
             plotx = plotx.transpose()
 
         if __verbose__:
@@ -724,14 +719,14 @@ class SpecPlot(object):
                 print '---- x2 = {}'.format(self.scan.header.labels[self.x2col])
 
         if norm:
-            ploty = self.scan.data.fulldata[:, ycol]/self.scan.data.fulldata[:, mcol]
+            ploty = self.scan.data.raw[:, ycol]/self.scan.data.raw[:, mcol]
             y_label = '{} / {}'.format(self.scan.cols[ycol],
                                        self.scan.cols[mcol])
             if __verbose__:
                 print '---- y = {} / {}'.format(self.scan.cols[ycol],
                                                 self.scan.cols[mcol])
         else:
-            ploty = self.scan.data.fulldata[:, ycol]
+            ploty = self.scan.data.raw[:, ycol]
             y_label = self.scan.header.labels[ycol]
             if __verbose__:
                 print '---- y = {}'.format(self.scan.header.labels[ycol])
@@ -811,3 +806,16 @@ class SpecPlot(object):
         plt.ylabel(y_label)
 
         plt.xlim(min(plotx), max(plotx))
+
+        
+if __name__ == '__main__': 
+    YBCO = SpecDataFile('YBCO_XAS')
+    LNSCO = SpecDataFile('LNSCO')
+
+    # Test standard plot.
+    SCAN1 = LNSCO[298]
+    SCAN1.plot()
+
+    # Test mesh plot.
+    SCAN2 = YBCO[11]
+    SCAN2.plot()
