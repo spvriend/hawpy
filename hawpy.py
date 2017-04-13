@@ -203,11 +203,6 @@ class SpecDataFile(object):
         self.file.close()
         return self.scan_objects[item]
 
-    def get_all(self):
-        """Create a SpecScan object for each scan in the data file."""
-        for scan in self.scan_index:
-            self.get_scan(scan)
-
     def index(self):
         """Read the file to generate the scan_index dict."""
         if __verbose__:
