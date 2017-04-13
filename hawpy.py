@@ -242,13 +242,19 @@ class SpecDataFile(object):
 
         self.file.seek(0, 0)
         line = self.file.readline()
+        mnems = []
+        names = []
 
         while (line[0:2] != '#S') and (line != ''):
-            if line[0:2] == '#O':
-                temp = line[4:]
-                self.motors += temp.split()
-
+            if line[0:2] == '#o':
+                mnems.extend(line.split()[1:])
+            elif line[0:2] == '#O':
+                names.extend(line.split()[1:])
+                self.motors.extend(line.split()[1:])
             line = self.file.readline()
+
+        for mnem, name in zip(mnems, names):
+            self.motormap[mnem] = name
 
         return
 
@@ -800,7 +806,7 @@ class SpecPlot(object):
 if __name__ == '__main__': 
     YBCO = SpecDataFile('YBCO_XAS')
     LNSCO = SpecDataFile('LNSCO')
-
+    
     # Test standard plot.
     SCAN1 = LNSCO[298]
     SCAN1.plot()
