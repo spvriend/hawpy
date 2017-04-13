@@ -116,7 +116,7 @@ class SpecDataFile(object):
         
     motors : list
         A list of the motors found in #O headers within the spec file.
-        
+
     scan_objects : dict
         A dict mapping scan numbers to SpecScan objects.
 
@@ -134,7 +134,20 @@ class SpecDataFile(object):
         return
 
     def __getitem__(self, item):
-        """Call get_scan(item) when self[item] is called."""
+        """Call get_scan(item) when self[item] is called.
+        
+        Parameters
+        ----------
+        item : int or list of int
+            The scan(s) to be returned.
+            
+        Returns
+        -------
+        SpecScan
+            A scan object corresponding to the scan number(s) in item.
+            
+        """
+
         return self.get_scan(item, set_labels=True)
 
     def __str__(self):
