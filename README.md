@@ -1,15 +1,15 @@
 # hawpy
 Silas Vriend. Hawthorn Research Group. Winter 2017.
 
-A Python module for reading, storing, and plotting spec data files.
+A python module for reading, storing, and plotting spec data files.
 
 ## Project Overview
  
-The objective is to write a Python package which can read in data
-from a spec file, store it as a Python object, and then carry out plotting
+The objective is to write a python package which can read in data
+from a spec file, store it as a python object, and then carry out plotting
 routines according to user-specified parameters.
 
-Ideally, this Python module would mimic the functionality of the 
+Ideally, this python module would mimic the functionality of the 
 SPEC_REIXSloader and ATools Igor procedures which were written by 
 previous members of the Hawthorn Research Group.
 
@@ -27,7 +27,7 @@ the needs of the group.
     
 ## Technical Specifications
     
-The package will be written in Python 2.7.13.  The package will
+The package will be written in python 2.7.13.  The package will
 take advantage of several modules from the SciPy stack, via the
 [Anaconda distribution](https://www.continuum.io/downloads).
     
@@ -39,7 +39,7 @@ header lines, and raw numerical data lines. Header lines are preceded
 by a # symbol. There are several different types of headers:
     
     #F      filename
-    #E      Unix epoch time
+    #E      Unix time
     #D      Gregorian calendar date
     #C      comment line
     
@@ -50,14 +50,14 @@ by a # symbol. There are several different types of headers:
     #j_     counter name mnemonics
     
     #S      scan header info
-    #T      time interval per data point
+    #T      data point time interval
     #G_     initial scan geometry information
     #Q      initial reciprocal lattice coordinates
-    #P_     initial motor settings (given in same order as in #O_ lines)
-    #N      number of data columns in the scan
+    #P_     initial motor settings given in same order as #O_
+    #N      number of data columns
     #L      data column labels
     
-The remaining lines of the spec data file contain raw numerical data
+The remaining lines of the spec data file contain the numerical data
 for all motors and counters at each time interval during the scan. The 
 values are separated by spaces and organized into columns.
 
@@ -71,8 +71,6 @@ values are separated by spaces and organized into columns.
 - timescan is an indefinite time-lapse scan.
     
 ### Scan syntaxes:
-
-Note the spacing between select words.
 
     ascan  motor start finish  intervals time
     a2scan  m1 s1 f1  m2 s1 f2  intervals time
@@ -88,7 +86,7 @@ Note the spacing between select words.
 ### From SPEC_REIXSloader:
 
 - Command to select a folder which contains the spec data file.
-- Command to load a spec data file.
+- Command to load spec data file.
 - Progress indicator is shown as data file is loaded.
 - A list of scan headers from the file is generated and displayed.
 - Several scan parameters are read and displayed from the
@@ -109,7 +107,7 @@ Note the spacing between select words.
 - *Command to plot T-scan.
 - *Command to fix theta scan relative to H, K, or L. (Switch x-axis)
 - *Command to order scans by T. (For vertical scan stack.)
-- *Commands to format graphs in predetermined ways.
+- *Commands to format graphs in specific ways.
 - *Command to subtract background noise from graph.
 - *Command to subtract hidden polynomial noise from graph.
 - *Command to perform Lorentzian fit to graph.
