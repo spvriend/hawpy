@@ -10,6 +10,9 @@ This module defines classes for reading spec data files into python,
 extracting data from specific scans, and creating standard x- vs. y-axis
 plots or two-dimensional mesh images.
 
+The __verbose__ parameter controls whether the module prints output to the
+terminal when a script is run.
+
 Classes:
 
     SpecDataFile :
