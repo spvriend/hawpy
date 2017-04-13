@@ -11,7 +11,10 @@ extracting data from specific scans, and creating standard x- vs. y-axis
 plots or two-dimensional mesh images.
 
 The __verbose__ parameter controls whether the module prints output to the
-terminal when a script is run.
+terminal when a script is run. To turn output off, add the following line to
+your script:
+    
+    hawpy.__verbose__ = False
 
 Classes:
 
