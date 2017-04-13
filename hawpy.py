@@ -184,7 +184,15 @@ class SpecDataFile(object):
                 raise Exception('Scan {} is not in the file.'.format(item))
 
     def get_line(self):
-        """Return the next line from the data file."""
+        """Return the next line from the data file.
+        
+        Returns
+        -------
+        line : str
+            The next line from the data file.
+            
+        """
+        
         line = self.file.readline()
         return line
 
