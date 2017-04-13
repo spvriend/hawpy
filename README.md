@@ -6,7 +6,7 @@ A python module for reading, storing, and plotting spec data files.
 ## Project Overview
  
 The objective is to write a python package which can read in data
-from a spec file, store it in a python class, and then carry out plotting
+from a spec file, store it as a python object, and then carry out plotting
 routines according to user-specified parameters.
 
 Ideally, this python module would mimic the functionality of the 
