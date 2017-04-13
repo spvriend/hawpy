@@ -11,10 +11,10 @@ routines according to user-specified parameters.
 
 Ideally, this python module would mimic the functionality of the 
 SPEC_REIXSloader and ATools Igor procedures which were written by 
-previous members of Dr. Hawthorn's research group.
+previous members of the Hawthorn Research Group.
 
 The package will consist of a basic, well-documented set of modules
-which could be improved upon by future members of the group.
+which may be improved upon by future members of the group.
 
 For the first iteration of the package, the goal is to have a command
 line interface which would be able to perform some of the essential
