@@ -352,28 +352,27 @@ class SpecScan(object):
     ----------
     specfile : SpecDataFile         
         Instance of a spec data file.
-    item : int              
-        The scan number of the scan to read in.
+
     set_labels : bool, optional            
         If true, set motor labels as keys in the dict of class variables.
     
     Attributes
     ----------
-    set_labels : bool
-        Decides whether motor labels are passed from data file to scan.
-
-    specfile : SpecDataFile
-        The spec data file from which the scan is to be read.
-
+    data : SpecScanData
+        An object containing the scan data.
+    
     header : SpecScanHeader
         An object containing information from the header.
 
-    data : SpecScanData
-        An object containing the scan data.
+    specfile : SpecDataFile
+        The spec data file from which the scan is to be read.
+    
+    set_labels : bool
+        Decides whether motor labels are passed from data file to scan.
 
     """
 
-    def __init__(self, specfile, set_labels=True, mask=None):
+    def __init__(self, specfile, set_labels=True):
         """Initialize an instance of the SpecScan class."""
         self.specfile = specfile
         self.header = SpecScanHeader()
@@ -382,16 +381,16 @@ class SpecScan(object):
 
         line = self.specfile.get_line()
 
-        sline = line.strip().split()
+        scanline = line.strip().split()
 
-        self.header.scan_no = int(sline[1])
-        self.header.scan_type = sline[2]
-        self.header.scan_cmd = ' '.join(sline[2:])
+        self.header.scan_no = int(scanline[1])
+        self.header.scan_type = scanline[2]
+        self.header.scan_cmd = ' '.join(scanline[2:])
 
-        self.header.fullheader = line
+        self.header.text = line
 
         line = self.specfile.get_line()
-        self.header.fullheader += line
+        self.header.text += line
 
         while (line[0:2] != '#L') and (line != ''):
             self.header.parse_header_line(self, line)
@@ -408,18 +407,12 @@ class SpecScan(object):
             elif line[0:2] == '#C':
                 self.header.parse_comment_line(line)
             else:
-                self.header.fullheader += line
+                self.header.text += line
 
             line = self.specfile.get_line()
 
         if isinstance(self.data.raw, list):
             self.data.raw = np.asarray(self.data)
-
-        if mask != None:
-            if __verbose__:
-                print '---- Removing rows {} from data.'.format(str(mask))
-            self.data = np.delete(self.data, mask, axis=0)
-
 
         self._setcols()
 
@@ -521,7 +514,7 @@ class SpecScanHeader(object):
 
     Attributes:
 
-        fullheader : string
+        text : string
             A string containing the entire scan header.
 
         scan_no : int
@@ -545,7 +538,7 @@ class SpecScanHeader(object):
 
     def __init__(self):
         # Declare all of the attributes ahead of time. Default them to None.
-        self.fullheader = ''
+        self.text = ''
         self.scan_no = None
         self.scan_cmd = ''
         self.scan_type = ''
@@ -567,7 +560,7 @@ class SpecScanHeader(object):
 
     def parse_motor_line(self, specscan, line):
         """Read #P lines and set motor positions."""
-        self.fullheader += line
+        self.text += line
         counter = 0
         positions = line.strip().split()
         for i in range(1, len(positions)):
@@ -585,12 +578,12 @@ class SpecScanHeader(object):
 
     def parse_comment_line(self, line):
         """Read in the #C comment line."""
-        self.fullheader += line
+        self.text += line
         self.comments += line
 
     def parse_date_line(self, line):
         """Read in the #D date line."""
-        self.fullheader += line
+        self.text += line
         date_obj = time.strptime(line[2:].strip())
         self.date = time.asctime(date_obj)
 
