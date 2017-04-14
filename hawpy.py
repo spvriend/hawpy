@@ -475,7 +475,7 @@ class SpecScan(object):
         plot = SpecPlot(self, **kwargs)
         plot.doplot()
 
-    def show(self, prefix='', nperline=6):
+    def show(self, prefix='', nperline=4):
         """Return a string of statistics about this SpecScan instance.
         
         Returns
@@ -491,21 +491,11 @@ class SpecScan(object):
         info += '\t{}\n\n'.format(self.specfile.filename)
         info += 'Scan Command:\n\n'
         info += '\t{}\n\n'.format(self.header.scan_cmd)
-        info += 'Scan Constants:\n\n'
+        info += 'Scan Constants:'
 
         j = nperline
-        types_to_print = [float, str, np.ndarray, int, np.float]
-
-        for key in self.__dict__:
-            if not self.data.cols.has_key(key):
-                if types_to_print.count(type(getattr(self, key))):
-                    info += '{:19} '.format(key)
-                    j -= 1
-                    if j == 0:
-                        info += '\n'
-                        j = nperline
-
-        info += '\n\n'
+        
+        info += '\n\n\t'
         info += self.data.show(prefix, nperline)
         return info
 
@@ -642,18 +632,18 @@ class SpecScanData(object):
         if __verbose__:
             print 'oooo Setting key {}'.format(key)
 
-    def show(self, prefix='', nperline=6):
+    def show(self, prefix='', nperline=4):
         """Return a string which reads out all motors and scan variables."""
         j = nperline
         info = ''
         info += prefix + 'Motors:\n\n'
-        info += prefix
+        info += prefix + '\t\t'
         for i in self.cols:
             if self.cols[i].size == 1:
                 info += '{:19}'.format(i)
                 j -= 1
                 if j == 0:
-                    info += '\n' + prefix
+                    info += '\n' + prefix + '\t\t'
                     j = nperline
 
         if j != nperline:
@@ -662,15 +652,16 @@ class SpecScanData(object):
         info += '\n'
 
         info += prefix + '\n'
-        info += prefix + 'Scan Variables:\n'
+        info += prefix + '\t' + 'Scan Variables:\n'
         info += prefix + '\n'
         j = nperline
+        info += prefix + '\t\t'
         for i in self.cols:
             if self.cols[i].size > 1:
                 info += '{:19}'.format(i)
                 j -= 1
                 if j == 0:
-                    info += '\n' + prefix
+                    info += '\n' + prefix + '\t\t'
                     j = nperline
 
         info += '\n'
@@ -827,14 +818,19 @@ class SpecPlot(object):
 
         
 if __name__ == '__main__':
+    __verbose__ = False
+    
     LNSCO = SpecDataFile('LNSCO')
     
     # Test standard plot.
     SCAN1 = LNSCO[298]
     SCAN1.plot()
-
+    print SCAN1
+    
     YBCO = SpecDataFile('YBCO_XAS')
     
     # Test mesh plot.
     SCAN2 = YBCO[11]
     SCAN2.plot()
+    print SCAN2
+    
