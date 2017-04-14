@@ -418,9 +418,10 @@ class SpecScan(object):
         self._setcols()
 
         if __verbose__:
-            print '---- Data is {} rows x \
-                  {} cols.'.format(self.data.raw.shape[0],
-                                   self.data.raw.shape[1])
+            rows = self.data.raw.shape[0]
+            cols = self.data.raw.shape[1]
+            print '---- Data is {} rows x {} cols.'.format(rows, cols)
+        
         return None
 
     def __str__(self):
@@ -435,29 +436,20 @@ class SpecScan(object):
         from all of the key-value pairs.
 
         """
-
-        # If there is at least one row of data,
-        if self.data.raw.shape[0] > 0:
-            # go through each column label
+        row_dim = self.data.raw.shape[0]
+        col_dim = self.data.raw.shape[1]
+        
+        if row_dim > 0:
             for i in range(len(self.header.labels)):
-                # and if there is more than one row of data
                 if len(self.data.raw.shape) == 2:
-                    # map the column label to that column of data
-                    motor_name = self.header.labels[i]
+                    label = self.header.labels[i]
                     data_column = self.data.raw[:, i]
-                    self.data.cols[motor_name] = data_column
+                    self.data.cols[label] = data_column
                 else:
-                    # Otherwise, map that column label to the one data point.
-                    motor_name = self.header.labels[i]
+                    label = self.header.labels[i]
                     data_value = np.array([self.data[i]])
-                    self.data.cols[motor_name] = data_value
+                    self.data.cols[label] = data_value
 
-            # Then update the local copy of the values dict.
-            self.values = self.data.cols.values
-
-            # If set_labels is true, create SpecScan object attributes from
-            # all of the key-value pairs contained in the SpecScanData
-            # values dict.
             if self.set_labels:
                 for i in self.data.cols:
                     new_attr = i
@@ -545,7 +537,6 @@ class SpecScanHeader(object):
     """
 
     def __init__(self):
-        # Declare all of the attributes ahead of time. Default them to None.
         self.text = ''
         self.scan_no = None
         self.scan_cmd = ''
@@ -600,16 +591,12 @@ class SpecScanData(object):
 
     Attributes:
 
-        values : dict
-            A dict mapping motor names to their initial positions, and column
-            labels to their corresponding columns (arrays) of data.
-
         raw : NumPy array
             A NumPy array containing the scan data as it appears in the file.
 
         cols : dict
             A dict which maps motor names to their initial positions, and
-            column labels to their corresponding column arrays of data.
+            column labels to their corresponding data column arrays.
 
         row_nums : NumPy array
             An nx1 array where the nth entry is the integer n, starting at 0.
@@ -623,11 +610,10 @@ class SpecScanData(object):
 
     def __init__(self):
         """Initializes an instance of the SpecScanData class."""
-        self.values = {}
         self.raw = np.array([])
         self.cols = {}
-        self.scan_nums = np.array([])
         self.row_nums = np.array([])
+        self.scan_nums = np.array([])
 
     def __str__(self):
         """Call show() when the class is passed in a print statement."""
@@ -639,24 +625,20 @@ class SpecScanData(object):
         newrow = np.asarray(dataline)
         if len(dataline) != 0:
             if len(self.raw) == 0:
-                # If the SpecScan object has no data already:
                 self.raw = newrow
             else:
-                # Otherwise, add the new row below the old data.
-                # Note that np.vstack is deprecated in favor of
-                # np.stack and np.concatenate.
                 self.raw = np.vstack((self.raw, newrow))
 
     def get(self, key):
         """Return the value for the given key, if possible."""
-        if self.values.has_key(key):
-            return self.values[key]
+        if self.cols.has_key(key):
+            return self.cols[key]
         else:
             return None
 
     def set_value(self, key, data):
         """Add the given key-value pair to the values dict."""
-        self.values[key] = data
+        self.cols[key] = data
         if __verbose__:
             print 'oooo Setting key {}'.format(key)
 
@@ -666,8 +648,8 @@ class SpecScanData(object):
         info = ''
         info += prefix + 'Motors:\n\n'
         info += prefix
-        for i in self.values:
-            if self.values[i].size == 1:
+        for i in self.cols:
+            if self.cols[i].size == 1:
                 info += '{:19}'.format(i)
                 j -= 1
                 if j == 0:
@@ -683,8 +665,8 @@ class SpecScanData(object):
         info += prefix + 'Scan Variables:\n'
         info += prefix + '\n'
         j = nperline
-        for i in self.values:
-            if self.values[i].size > 1:
+        for i in self.cols:
+            if self.cols[i].size > 1:
                 info += '{:19}'.format(i)
                 j -= 1
                 if j == 0:
@@ -844,14 +826,15 @@ class SpecPlot(object):
         plt.xlim(min(plotx), max(plotx))
 
         
-if __name__ == '__main__': 
-    YBCO = SpecDataFile('YBCO_XAS')
+if __name__ == '__main__':
     LNSCO = SpecDataFile('LNSCO')
-
+    
     # Test standard plot.
     SCAN1 = LNSCO[298]
     SCAN1.plot()
 
+    YBCO = SpecDataFile('YBCO_XAS')
+    
     # Test mesh plot.
     SCAN2 = YBCO[11]
     SCAN2.plot()
