@@ -397,6 +397,7 @@ class SpecScan(object):
             line = self.specfile.get_line()
 
         if line[0:2] == '#L':
+            self.header.text += line
             self.header.labels = line[3:].split()
 
         line = self.specfile.get_line()
@@ -427,11 +428,11 @@ class SpecScan(object):
         return self.show()
 
     def _setcols(self):
-        """Map column labels to column data arrays.
+        """Map column labels to data column arrays.
 
         This is done both within the SpecScan object and within its
         corresponding SpecScanData object. Creates SpecScan attributes
-        from all of the key-valuepairs.
+        from all of the key-value pairs.
 
         """
 
@@ -483,7 +484,14 @@ class SpecScan(object):
         plot.doplot()
 
     def show(self, prefix='', nperline=6):
-        """Return a string of statistics about this SpecScan instance."""
+        """Return a string of statistics about this SpecScan instance.
+        
+        Returns
+        -------
+        str
+            A string giving the scan number, data file name, scan command, and
+            motor labels.
+        """
         info = ''
         info += 'Scan:\n\n'
         info += '\t{}\n\n'.format(self.header.scan_no)
