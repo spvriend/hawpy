@@ -666,31 +666,30 @@ class SpecScanData(object):
 class SpecPlot(object):
     """This class represents a standard x-axis vs. y-axis plot.
 
-    Attributes:
+    Attributes
+    ----------
+    is_plotted : bool
+        A boolean indicating whether the scan has been plotted.
 
-        plot : None or pyplot plot
-            The matplotlib plot associated with the object.
+    plot : matplotlib.plot object or None
+        The matplotlib plot associated with the object.
 
-        plotted : bool
-            A boolean indicating whether the scan has been plotted.
+    scan : SpecScan object
+        The SpecScan object from which to graph data.
+        
+    xcol : array_like
+        The x-data for the plot.
 
-        plotx : array_like
-            The x-data for the plot.
-
-        ploty : array_like
-            The y-data for the plot. May be normalized.
-
-        scan : SpecScan object
-            The SpecScan object from which to graph data.
+    x2col : array_like
+        The x2-data for the plot if it is a two-dimensional plot.
 
     """
 
     def __init__(self, specscan):
         """Initialize an instance of the SpecPlot class."""
+        self.is_plotted = False
+        self.plot = None
         self.scan = specscan
-        self.plt = None
-        self.plotted = False
-
         self.xcol = None
         self.x2col = None
 
@@ -748,7 +747,7 @@ class SpecPlot(object):
                                            self.scan.header.scan_no, ' - ',
                                            self.scan.header.date,
                                            self.scan.header.scan_cmd))
-        self.plotted = True
+        self.is_plotted = True
         plt.show()
 
     def set_x_axes(self):
