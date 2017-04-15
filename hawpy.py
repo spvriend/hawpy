@@ -518,6 +518,7 @@ class SpecScanHeader(object):
     """
 
     def __init__(self):
+        """Initialize an instance of the SpecScanHeader class."""
         self.comments = ''
         self.date = ''
         self.labels = ''
@@ -528,8 +529,7 @@ class SpecScanHeader(object):
         return
 
     def __str__(self):
-        # Return the entire header when this object is printed.
-        return self.fullheader    
+        return self.text    
         
     def parse_header_line(self, specscan, line):
         """Read the header line and set attributes accordingly."""
@@ -573,22 +573,23 @@ class SpecScanHeader(object):
 class SpecScanData(object):
     """This class defines the data contained within a scan.
 
-    Attributes:
+    In the attribute documentation, n is the number of rows of data in 
+    the scan.
+    
+    Attributes
+    ----------
+    raw : array_like
+        The raw numerical scan data as it appears in the file.
 
-        raw : NumPy array
-            A NumPy array containing the scan data as it appears in the file.
+    cols : dict
+        A dict which maps motor names to their initial positions, and
+        column labels to their corresponding data column arrays.
 
-        cols : dict
-            A dict which maps motor names to their initial positions, and
-            column labels to their corresponding data column arrays.
-
-        row_nums : NumPy array
-            An nx1 array where the nth entry is the integer n, starting at 0.
-            (n is the number of rows of data in the scan.)
-
-        scan_nums : NumPy array
-            An nx1 array where each entry is the scan number as an int.
-            (n is the number of rows of data in the scan.)
+    row_nums : array_like
+        An nx1 array where the nth entry is the integer n, starting at 0.
+        
+    scan_nums : array_like
+        An nx1 array where each entry is the scan number as an int.
 
     """
 
@@ -673,10 +674,10 @@ class SpecPlot(object):
         plotted : bool
             A boolean indicating whether the scan has been plotted.
 
-        plotx : NumPy array
+        plotx : array_like
             The x-data for the plot.
 
-        ploty : NumPy array
+        ploty : array_like
             The y-data for the plot. May be normalized.
 
         scan : SpecScan object
