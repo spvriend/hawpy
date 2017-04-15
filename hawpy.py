@@ -457,8 +457,12 @@ class SpecScan(object):
                         print 'oooo Setting attribute {}'.format(i)
                     setattr(self, new_attr, self.data.cols[i])
 
+    def get_motormap(self):
+        """Return the motormap dict from the specfile."""
+        return self.specfile.motormap
+                    
     def plot(self, **kwargs):
-        """Return a SpecPlot object according to the arguments."""
+        """Return a SpecPlot object according to the arguments."""  
         plot = SpecPlot(self, **kwargs)
         plot.doplot()
 
