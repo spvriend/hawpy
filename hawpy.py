@@ -700,9 +700,12 @@ class SpecPlot(object):
         if twod:
             ycol = 'TEY_REIXS'
 
-        self.set_x_axis_indices(self.scan.header.scan_cmd,
-                                self.scan.get_motormap(),
-                                self.scan.header.labels)
+        scan_cmd = self.scan.header.scan_cmd
+        motormap = self.scan.get_motormap()
+        labels = self.scan.header.labels
+        
+        self.set_x_axis_indices(scan_cmd, motormap, labels)
+
         self.check_x_type()
         self.labels_to_indices()
 
@@ -759,19 +762,27 @@ class SpecPlot(object):
                 # Get the motors used in the scan command.
                 mnem1 = scan_cmd.split()[1]
                 mnem2 = scan_cmd.split()[4]
-
+                print mnem1
+                print mnem2
+                
                 # Turn the mnemonics into full names.
                 name1 = motormap[mnem1]
                 name2 = motormap[mnem2]
-
+                print name1
+                print name2
+                
                 # Get the indices for the full names.
                 self.xcol = labels.index(name1)
                 self.x2col = labels.index(name2)
+                print self.xcol
+                print self.x2col
             else:
                 mnem = scan_cmd.split()[1]
                 name = motormap[mnem]
                 self.xcol = labels.index(name)
                 self.x2col = None
+                print self.xcol
+                print self.x2col
 
     def check_x_type(self):
         """Check that the x-axes have the right type."""
@@ -832,12 +843,10 @@ if __name__ == '__main__':
     # Test standard plot.
     SCAN1 = LNSCO[298]
     SCAN1.plot()
-    print SCAN1
     
     YBCO = SpecDataFile('YBCO_XAS')
     
     # Test mesh plot.
     SCAN2 = YBCO[11]
     SCAN2.plot()
-    print SCAN2
     
