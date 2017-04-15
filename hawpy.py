@@ -457,19 +457,6 @@ class SpecScan(object):
                         print 'oooo Setting attribute {}'.format(i)
                     setattr(self, new_attr, self.data.cols[i])
 
-    def concat(self, newscan):
-        """Concatenates self with the SpecScan passed to the method."""
-        if self.header.labels != newscan.header.labels:
-            raise Exception('Scan column headers are not the same.')
-
-        self.header += newscan.header
-
-        self.data = np.concatenate((self.data, newscan.data))
-        self.data.scan_nums = np.concatenate((self.data.scan_nums, newscan.data.scan_nums))
-        self.data.row_nums = np.concatenate((self.data.row_nums, newscan.data.row_nums))
-
-        self._setcols()
-
     def plot(self, **kwargs):
         """Return a SpecPlot object according to the arguments."""
         plot = SpecPlot(self, **kwargs)
