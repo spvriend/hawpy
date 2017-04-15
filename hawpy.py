@@ -518,17 +518,21 @@ class SpecScanHeader(object):
     """
 
     def __init__(self):
-        self.text = ''
-        self.scan_no = None
-        self.scan_cmd = ''
-        self.scan_type = ''
+        self.comments = ''
         self.date = ''
         self.labels = ''
-        self.comments = ''
+        self.scan_cmd = ''
+        self.scan_no = None
+        self.scan_type = ''
+        self.text = ''
         return
 
+    def __str__(self):
+        # Return the entire header when this object is printed.
+        return self.fullheader    
+        
     def parse_header_line(self, specscan, line):
-        """Read the line and set attributes accordingly."""
+        """Read the header line and set attributes accordingly."""
         self.text += line
         
         if line[0:2] == '#P':
