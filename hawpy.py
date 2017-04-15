@@ -390,8 +390,7 @@ class SpecScan(object):
         self.header.text = line
 
         line = self.specfile.get_line()
-        self.header.text += line
-
+        
         while (line[0:2] != '#L') and (line != ''):
             self.header.parse_header_line(self, line)
             line = self.specfile.get_line()
@@ -529,6 +528,8 @@ class SpecScanHeader(object):
 
     def parse_header_line(self, specscan, line):
         """Read the line and set attributes accordingly."""
+        self.text += line
+        
         if line[0:2] == '#P':
             self.parse_motor_line(specscan, line)
 
@@ -540,7 +541,6 @@ class SpecScanHeader(object):
 
     def parse_motor_line(self, specscan, line):
         """Read #P lines and set motor positions."""
-        self.text += line
         counter = 0
         positions = line.strip().split()
         for i in range(1, len(positions)):
@@ -558,12 +558,10 @@ class SpecScanHeader(object):
 
     def parse_comment_line(self, line):
         """Read in the #C comment line."""
-        self.text += line
         self.comments += line
 
     def parse_date_line(self, line):
         """Read in the #D date line."""
-        self.text += line
         date_obj = time.strptime(line[2:].strip())
         self.date = time.asctime(date_obj)
 
