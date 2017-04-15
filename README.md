@@ -101,6 +101,7 @@ Note the spacing between select words.
 - A list of possible y-axes is presented. 
 - The user can opt to generate multiple plots by selecting multiple
     y-axis options and using the "Display" command.
+- The appropriate y-axis label is added to the plot based on the user's choice.
 - The user can opt to append an additional trace to an existing plot
     by selecting a new y-axis and using the "Append" command.
         
@@ -109,6 +110,7 @@ Note the spacing between select words.
 - Command to merge arbitrarily many graphs with identical axes 
     onto the same plot. The user can select the graph from which
     the new merged graph should inherit features.
+- Command to normalize scan data relative to a counter of the user's choice.
 - *Command to plot T-scan.
 - *Command to fix theta scan relative to H, K, or L. (Switch x-axis)
 - *Command to order scans by T. (For vertical scan stack.)
