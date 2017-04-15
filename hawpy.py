@@ -490,30 +490,31 @@ class SpecScan(object):
         return info
 
 class SpecScanHeader(object):
-    """This class contains the data from the given scan header.
+    """This class contains information from the scan header.
 
-    Attributes:
+    Attributes
+    ----------
+    comments : str
+        The comment lines for the scan, in the order they appear in the file.
 
-        text : string
-            A string containing the entire scan header.
+    date : str
+        The timestamp of the scan as it appears in the #D control line.
+    
+    labels : list
+        An ordered list the scan's data column labels.
+        
+    scan_cmd : str
+        The full scan command as it appears in the #S control line.
+    
+    scan_no : int
+        The scan number.
 
-        scan_no : int
-            The scan number as an integer.
+    scan_type : str
+        The scan type. ('mesh', 'ascan', 'a2scan', etc.)
 
-        scan_cmd : string
-            The scan command as a string.
-
-        scan_type : string
-            The scan type as a string.
-
-        date : string
-            A string containing the time as it appears in the scan file.
-
-        labels : list
-            A list of all the column labels for the scan data.
-
-        comments : string
-            A string containing all of the comment lines from the scan.
+    text : str
+        The text of the scan header as it appears in the spec data file.
+        
     """
 
     def __init__(self):
