@@ -700,7 +700,9 @@ class SpecPlot(object):
         if twod:
             ycol = 'TEY_REIXS'
 
-        self.set_x_axes()
+        self.set_x_axis_indices(self.scan.header.scan_cmd,
+                                self.scan.get_motormap(),
+                                self.scan.header.labels)
         self.check_x_type()
         self.labels_to_indices()
 
@@ -750,14 +752,25 @@ class SpecPlot(object):
         self.is_plotted = True
         plt.show()
 
-    def set_x_axes(self):
+    def set_x_axis_indices(self, scan_cmd, motormap, labels):
         """Set values for the x axes according to the scan type."""
         if self.xcol is None:
-            if self.scan.header.scan_type.strip() == 'mesh':
-                self.xcol = 0
-                self.x2col = 1
+            if scan_cmd.split()[2] == 'mesh':
+                # Get the motors used in the scan command.
+                mnem1 = scan_cmd.split()[1]
+                mnem2 = scan_cmd.split()[4]
+
+                # Turn the mnemonics into full names.
+                name1 = motormap[mnem1]
+                name2 = motormap[mnem2]
+
+                # Get the indices for the full names.
+                self.xcol = labels.index(name1)
+                self.x2col = labels.index(name2)
             else:
-                self.xcol = 0
+                mnem = scan_cmd.split()[1]
+                name = motormap[mnem]
+                self.xcol = labels.index(name)
                 self.x2col = None
 
     def check_x_type(self):
