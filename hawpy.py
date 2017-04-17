@@ -473,10 +473,10 @@ class SpecScan(object):
         """Return the motormap dict from the specfile."""
         return self.specfile.motormap
 
-    def plot(self, norm=False, ycol='ChT_REIXS', mcol='I0_BD3', fmt=''):
+    def do_plot(self, ycol='ChT_REIXS', mcol=None, fmt=''):
         """Return a SpecPlot object according to the arguments."""
         plot = SpecPlot(self)
-        plot.doplot(norm, ycol, mcol, fmt)
+        plot.doplot(ycol, mcol, fmt)
 
     def show(self, prefix='', nperline=4):
         """Return a string of statistics about this SpecScan instance.
@@ -683,16 +683,16 @@ class SpecPlot(object):
 
     def __init__(self, specscan):
         """Initialize an instance of the SpecPlot class."""
-        self.is_plotted = False
-        self.plot = None
         self.scan = specscan
         self.xcol = None
         self.x2col = None
 
-    def doplot(self, norm, ycol, mcol, fmt=''):
+    def doplot(self, ycol, mcol, fmt=''):
         """Generates a plot according to the provided kwargs."""
         twod = istwod(self.scan)
+        norm = mcol is not None
 
+        scan_no = self.scan.header.scan_no
         scan_cmd = self.scan.header.scan_cmd
         motormap = self.scan.get_motormap()
         labels = self.scan.header.labels
@@ -713,19 +713,16 @@ class SpecPlot(object):
             plotx = plotx.transpose()
 
         if __verbose__:
-            print '**** Plotting scan {} ({})'.format(self.scan.header.scan_no,
-                                                      self.scan.header.scan_cmd)
-            print '---- x = {}'.format(self.scan.header.labels[self.xcol])
+            print '**** Plotting scan {} ({})'.format(scan_no, scan_cmd)
+            print '---- x = {}'.format(labels[self.xcol])
             if self.x2col != None:
-                print '---- x2 = {}'.format(self.scan.header.labels[self.x2col])
+                print '---- x2 = {}'.format(labels[self.x2col])
 
         if norm:
             ploty = self.scan.data.raw[:, ycol]/self.scan.data.raw[:, mcol]
-            y_label = '{} / {}'.format(self.scan.cols[ycol],
-                                       self.scan.cols[mcol])
+            y_label = '{} / {}'.format(labels[ycol], labels[mcol])
             if __verbose__:
-                print '---- y = {} / {}'.format(self.scan.cols[ycol],
-                                                self.scan.cols[mcol])
+                print '---- y = {} / {}'.format(labels[ycol], labels[mcol])
         else:
             ploty = self.scan.data.raw[:, ycol]
             y_label = labels[ycol]
@@ -735,7 +732,7 @@ class SpecPlot(object):
         plt.figure()
 
         if twod:
-            self.do_mesh_plot(plotx, ploty, ycol)
+            self.do_mesh_plot(plotx, ploty, y_label)
 
         else:
             self.do_std_plot(plotx, ploty, fmt, y_label)
@@ -744,7 +741,6 @@ class SpecPlot(object):
         plt.title('{} {} {} {}\n{}'.format(self.scan.specfile.filename,
                                            self.scan.header.scan_no, ' - ',
                                            self.scan.header.date, scan_cmd))
-        self.is_plotted = True
         plt.show()
 
     def set_x_axis_indices(self, scan_cmd, motormap, labels):
@@ -786,23 +782,21 @@ class SpecPlot(object):
         if isinstance(self.x2col, str):
             self.x2col = self.scan.cols.index(self.x2col)
 
-    def do_mesh_plot(self, plotx, ploty, ycol):
+    def do_mesh_plot(self, plotx, ploty, y_label):
         """Plot the mesh scan data."""
-        j = 1j
         xint, x2int = get_mesh_dims(self.scan)
         grid_x, grid_y = np.mgrid[min(plotx[:, 0]):
-                                  max(plotx[:, 0]):xint*j,
+                                  max(plotx[:, 0]):xint*1j,
                                   min(plotx[:, 1]):
-                                  max(plotx[:, 1]):x2int*j]
+                                  max(plotx[:, 1]):x2int*1j]
         if __verbose__:
             print '---- xint = {}'.format(xint)
             print '---- x2int = {}'.format(x2int)
 
-        grid_z = griddata(plotx, ploty,
-                          (grid_x, grid_y), method='linear')
+        grid_z = griddata(plotx, ploty, (grid_x, grid_y))
 
         plt.pcolormesh(grid_x, grid_y, grid_z, cmap='inferno')
-        plt.colorbar(label=self.scan.header.labels[ycol])
+        plt.colorbar(label=y_label)
 
         plt.xlim(min(plotx[:, 0]), max(plotx[:, 0]))
         plt.ylim(min(plotx[:, 1]), max(plotx[:, 1]))
@@ -824,13 +818,20 @@ if __name__ == '__main__':
     __verbose__ = True
 
     LNSCO = SpecDataFile('LNSCO')
-
-    # Test standard plot.
     SCAN1 = LNSCO[298]
-    SCAN1.plot()
 
     YBCO = SpecDataFile('YBCO_XAS')
+    SCAN2 = YBCO[11]
+    
+    # Test standard plot.
+    SCAN1.do_plot(ycol='ChT_REIXS')
+    
+    # Test standard plot with normalization.
+    SCAN1.do_plot(ycol='ChT_REIXS', mcol='I0_BD3')
 
     # Test mesh plot.
-    SCAN2 = YBCO[11]
-    SCAN2.plot(ycol='TEY_REIXS')
+    SCAN2.do_plot(ycol='TEY_REIXS')
+    
+    # Test mesh plot with normalization.
+    SCAN2.do_plot(ycol='TEY_REIXS', mcol='I0_BD3')
+    
