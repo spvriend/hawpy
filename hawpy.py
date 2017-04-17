@@ -825,7 +825,6 @@ class SpecPlot(object):
         
         
 if __name__ == '__main__':
-    # __verbose__ = False
     
     LNSCO = SpecDataFile('LNSCO')
     
