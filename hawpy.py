@@ -13,7 +13,7 @@ plots or two-dimensional mesh images.
 The __verbose__ parameter controls whether the module prints output to the
 terminal when a script is run. To turn output off, add the following line to
 your script:
-    
+
     hawpy.__verbose__ = False
 
 Classes:
@@ -37,7 +37,6 @@ Classes:
 """
 
 import time
-import copy
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -49,17 +48,17 @@ __verbose__ = True
 
 def get_mesh_dims(scan):
     """Return a tuple containing the dimensions of the mesh grid.
-    
+
     Parameters
     ----------
     scan : SpecScan
         `scan` is the scan to be checked.
-        
+
     Returns
     -------
     mesh_dims : tuple of int
         The x and y dimensions of the mesh grid.
-    
+
     """
 
     mesh_cmd = scan.header.scan_cmd.split()
@@ -70,20 +69,37 @@ def get_mesh_dims(scan):
 
 def istwod(scan):
     """Return True if the scan is a mesh scan.
-    
+
     Parameters
     ----------
     scan : SpecScan
         The SpecScan object to check.
-        
+
     Returns
     -------
     bool
         A bool indicating whether the scan is a mesh scan.
-        
+
     """
 
     return scan.header.scan_type.strip() == 'mesh'
+
+def parse_motor_line(specscan, line):
+    """Read #P lines and set motor positions."""
+    counter = 0
+    positions = line.strip().split()
+    for i in range(1, len(positions)):
+        if counter < len(specscan.specfile.motors):
+            key = specscan.specfile.motors[counter]
+            value = np.array([float(positions[i])])
+            specscan.data.set_value(key, value)
+        else:
+            print '**** WARNING: More motors in scan than'
+            print '****     defined in the scan header. Someone'
+            print '****     changed the motor order without'
+            print '****     updating the file. CHECK that the'
+            print '****     assignments are correct.'
+        counter += 1
 
 
 class SpecDataFile(object):
@@ -99,15 +115,15 @@ class SpecDataFile(object):
     ----------
     fn : str
         The name of the spec data file from which to read data.
-    
+
     Attributes
     ----------
     file : file object
-        A temporary file object, created whenever the file is read.    
-        
+        A temporary file object, created whenever the file is read.
+
     filename : str
         The name of the spec data file.
-        
+
     scan_index : dict
         A dict mapping scan numbers to scan locations within the file.
 
@@ -116,7 +132,7 @@ class SpecDataFile(object):
 
     motormap : dict
         A dict which maps motor mnemonics to motor names.
-        
+
     scan_objects : dict
         A dict mapping scan numbers to SpecScan objects.
 
@@ -136,29 +152,29 @@ class SpecDataFile(object):
 
     def __getitem__(self, item):
         """Call get_scan(item) when self[item] is called.
-        
+
         Parameters
         ----------
         item : int
             The scan to be returned.
-            
+
         Returns
         -------
         SpecScan
             A scan object corresponding to the scan number in item.
-            
+
         """
 
         return self.get_scan(item, set_labels=True)
 
     def __str__(self):
         """Call show() when self is passed in a print statement.
-        
+
         Returns
         -------
         str
             A string representation of the data file.
-            
+
         """
 
         return self.show()
@@ -195,12 +211,12 @@ class SpecDataFile(object):
 
     def get_line(self):
         """Return the next line from the data file.
-        
+
         Returns
         -------
         line : str
             The next line from the data file.
-            
+
         """
 
         line = self.file.readline()
@@ -208,25 +224,25 @@ class SpecDataFile(object):
 
     def get_scan(self, item, set_labels=True, reread=False):
         """Create a single SpecScan object for the desired scan.
-        
+
         Parameters
         ----------
         item : int
             The scan number of the desired scan.
-        
+
         set_labels : bool, optional
             Indicates whether the label-data column mappings for the scan will
             be set as attributes of the scan object itself.
-        
+
         reread : bool, optional
             Indicates whether the scan object should reread the scan and
             generate a new scan object for that scan.
-            
+
         Returns
         -------
         SpecScan
             The scan object corresponding to scan number `item`.
-        
+
         """
 
         if self.file.closed:
@@ -312,17 +328,17 @@ class SpecDataFile(object):
 
     def show(self, head='---- '):
         """Return a string of statistics on the data file.
-        
+
         Parameters
         ----------
         head : str, optional
             The sring of characters which precedes each line of information.
-            
+
         Returns
         -------
         statistics : str
             A string giving the number of scans, and the first and last scans.
-            
+
         """
 
         file_length = len(self.scan_index)
@@ -350,23 +366,23 @@ class SpecScan(object):
 
     Parameters
     ----------
-    specfile : SpecDataFile         
+    specfile : SpecDataFile
         Instance of a spec data file.
 
-    set_labels : bool, optional            
+    set_labels : bool, optional
         If true, set motor labels as keys in the dict of class variables.
-    
+
     Attributes
     ----------
     data : SpecScanData
         An object containing the scan data.
-    
+
     header : SpecScanHeader
         An object containing information from the header.
 
     specfile : SpecDataFile
         The spec data file from which the scan is to be read.
-    
+
     set_labels : bool
         Decides whether motor labels are passed from data file to scan.
 
@@ -390,7 +406,7 @@ class SpecScan(object):
         self.header.text = line
 
         line = self.specfile.get_line()
-        
+
         while (line[0:2] != '#L') and (line != ''):
             self.header.parse_header_line(self, line)
             line = self.specfile.get_line()
@@ -420,7 +436,7 @@ class SpecScan(object):
             rows = self.data.raw.shape[0]
             cols = self.data.raw.shape[1]
             print '---- Data is {} rows x {} cols.'.format(rows, cols)
-        
+
         return None
 
     def __str__(self):
@@ -435,45 +451,44 @@ class SpecScan(object):
         from all of the key-value pairs.
 
         """
-        row_dim = self.data.raw.shape[0]
-        col_dim = self.data.raw.shape[1]
-        
-        if row_dim > 0:
-            for i in range(len(self.header.labels)):
-                if len(self.data.raw.shape) == 2:
-                    label = self.header.labels[i]
-                    data_column = self.data.raw[:, i]
-                    self.data.cols[label] = data_column
-                else:
-                    label = self.header.labels[i]
-                    data_value = np.array([self.data[i]])
-                    self.data.cols[label] = data_value
 
-            if self.set_labels:
-                for i in self.data.cols:
-                    new_attr = i
-                    if __verbose__:
-                        print 'oooo Setting attribute {}'.format(i)
-                    setattr(self, new_attr, self.data.cols[i])
+        for i in range(len(self.header.labels)):
+            if len(self.data.raw.shape) == 2:
+                label = self.header.labels[i]
+                data_column = self.data.raw[:, i]
+                self.data.cols[label] = data_column
+            else:
+                label = self.header.labels[i]
+                data_value = np.array([self.data.cols[label]])
+                self.data.cols[label] = data_value
+
+        if self.set_labels:
+            for i in self.data.cols:
+                new_attr = i
+                if __verbose__:
+                    print 'oooo Setting attribute {}'.format(i)
+                setattr(self, new_attr, self.data.cols[i])
 
     def get_motormap(self):
         """Return the motormap dict from the specfile."""
         return self.specfile.motormap
-                    
+
     def plot(self, norm=False, ycol='ChT_REIXS', mcol='I0_BD3', fmt=''):
-        """Return a SpecPlot object according to the arguments."""  
+        """Return a SpecPlot object according to the arguments."""
         plot = SpecPlot(self)
         plot.doplot(norm, ycol, mcol, fmt)
 
     def show(self, prefix='', nperline=4):
         """Return a string of statistics about this SpecScan instance.
-        
+
         Returns
         -------
         str
             A string giving the scan number, data file name, scan command, and
             motor labels.
+
         """
+
         info = ''
         info += 'Scan:\n\n'
         info += '\t{}\n\n'.format(self.header.scan_no)
@@ -483,8 +498,6 @@ class SpecScan(object):
         info += '\t{}\n\n'.format(self.header.scan_cmd)
         info += 'Scan Constants:'
 
-        j = nperline
-        
         info += '\n\n\t'
         info += self.data.show(prefix, nperline)
         return info
@@ -499,13 +512,13 @@ class SpecScanHeader(object):
 
     date : str
         The timestamp of the scan as it appears in the #D control line.
-    
+
     labels : list
         An ordered list the scan's data column labels.
-        
+
     scan_cmd : str
         The full scan command as it appears in the #S control line.
-    
+
     scan_no : int
         The scan number.
 
@@ -514,52 +527,35 @@ class SpecScanHeader(object):
 
     text : str
         The text of the scan header as it appears in the spec data file.
-        
+
     """
 
     def __init__(self):
         """Initialize an instance of the SpecScanHeader class."""
         self.comments = ''
         self.date = ''
-        self.labels = ''
+        self.labels = []
         self.scan_cmd = ''
-        self.scan_no = None
         self.scan_type = ''
+        self.scan_no = None
         self.text = ''
         return
 
     def __str__(self):
-        return self.text    
-        
+        return self.text
+
     def parse_header_line(self, specscan, line):
         """Read the header line and set attributes accordingly."""
         self.text += line
-        
+
         if line[0:2] == '#P':
-            self.parse_motor_line(specscan, line)
+            parse_motor_line(specscan, line)
 
         elif line[0:2] == '#C':
             self.parse_comment_line(line)
 
         elif line[0:2] == '#D':
             self.parse_date_line(line)
-
-    def parse_motor_line(self, specscan, line):
-        """Read #P lines and set motor positions."""
-        counter = 0
-        positions = line.strip().split()
-        for i in range(1, len(positions)):
-            if counter < len(specscan.specfile.motors):
-                key = specscan.specfile.motors[counter]
-                value = np.array([float(positions[i])])
-                specscan.data.set_value(key, value)
-            else:
-                print '**** WARNING: More motors in scan than'
-                print '****     defined in the scan header. Someone'
-                print '****     changed the motor order without'
-                print '****     updating the file. CHECK that the'
-                print '****     assignments are correct.'
-            counter += 1
 
     def parse_comment_line(self, line):
         """Read in the #C comment line."""
@@ -573,9 +569,9 @@ class SpecScanHeader(object):
 class SpecScanData(object):
     """This class defines the data contained within a scan.
 
-    In the attribute documentation, n is the number of rows of data in 
+    In the attribute documentation, n is the number of rows of data in
     the scan.
-    
+
     Attributes
     ----------
     raw : array_like
@@ -587,7 +583,7 @@ class SpecScanData(object):
 
     row_nums : array_like
         An nx1 array where the nth entry is the integer n, starting at 0.
-        
+
     scan_nums : array_like
         An nx1 array where each entry is the scan number as an int.
 
@@ -676,7 +672,7 @@ class SpecPlot(object):
 
     scan : SpecScan object
         The SpecScan object from which to graph data.
-        
+
     xcol : array_like
         The x-data for the plot.
 
@@ -694,7 +690,7 @@ class SpecPlot(object):
         self.x2col = None
 
     def doplot(self, norm, ycol, mcol, fmt=''):
-        """Generates a plot according to the provided kwargs."""       
+        """Generates a plot according to the provided kwargs."""
         twod = istwod(self.scan)
 
         scan_cmd = self.scan.header.scan_cmd
@@ -752,14 +748,14 @@ class SpecPlot(object):
         plt.show()
 
     def set_x_axis_indices(self, scan_cmd, motormap, labels):
-        """Set values for the x axes according to the scan type."""        
+        """Set values for the x axes according to the scan type."""
         command = scan_cmd.split()
-        
+
         if command[0] == 'mesh':
             # Get the motors used in the scan command.
             mnem1 = command[1]
             mnem2 = command[5]
-            
+
             # Turn the mnemonics into full names.
             name1 = motormap[mnem1]
             name2 = motormap[mnem2]
@@ -772,9 +768,9 @@ class SpecPlot(object):
             name = motormap[mnem]
             self.xcol = labels.index(name)
             self.x2col = None
-                
+
     def check_x_type(self):
-        """Check that the x-axes have the right type."""        
+        """Check that the x-axes have the right type."""
         if isinstance(self.xcol, list) or isinstance(self.xcol, np.ndarray):
             self.xcol = self.xcol[0]
             self.x2col = self.xcol[1]
@@ -782,16 +778,16 @@ class SpecPlot(object):
             if not isinstance(self.xcol, int) and not isinstance(self.xcol, str):
                 raise Exception("Illegal {} : xcol can only be 'int', 'list'\
                                  or 'np.ndarray'.".format(type(self.xcol)))
-                                 
+
     def labels_to_indices(self):
-        """Converts the axis labels to indices."""       
+        """Converts the axis labels to indices."""
         if isinstance(self.xcol, str):
             self.xcol = self.scan.cols.index(self.xcol)
         if isinstance(self.x2col, str):
             self.x2col = self.scan.cols.index(self.x2col)
 
     def do_mesh_plot(self, plotx, ploty, ycol):
-        """Plot the mesh scan data."""        
+        """Plot the mesh scan data."""
         j = 1j
         xint, x2int = get_mesh_dims(self.scan)
         grid_x, grid_y = np.mgrid[min(plotx[:, 0]):
@@ -813,29 +809,28 @@ class SpecPlot(object):
 
         plt.xlabel(self.scan.header.labels[self.xcol])
         plt.ylabel(self.scan.header.labels[self.x2col])
-       
+
     def do_std_plot(self, plotx, ploty, fmt, y_label):
         """Plot a standard x- vs. y-axis plot."""
-        self.plt = plt.plot(plotx, ploty, fmt)
+        plt.plot(plotx, ploty, fmt)
 
         plt.xlabel(self.scan.header.labels[self.xcol])
         plt.ylabel(y_label)
 
         plt.xlim(min(plotx), max(plotx))
-        
-        
+
+
 if __name__ == '__main__':
     __verbose__ = True
-    
+
     LNSCO = SpecDataFile('LNSCO')
-    
+
     # Test standard plot.
     SCAN1 = LNSCO[298]
     SCAN1.plot()
-    
+
     YBCO = SpecDataFile('YBCO_XAS')
-    
+
     # Test mesh plot.
     SCAN2 = YBCO[11]
     SCAN2.plot(ycol='TEY_REIXS')
-    
