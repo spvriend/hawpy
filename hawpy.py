@@ -474,9 +474,9 @@ class SpecScan(object):
         return self.specfile.motormap
 
     def do_plot(self, ycol='ChT_REIXS', mcol=None, fmt=''):
-        """Return a SpecPlot object according to the arguments."""
+        """Produce a plot according to the keyword arguments."""
         plot = SpecPlot(self)
-        plot.doplot(ycol, mcol, fmt)
+        plot.do_plot(ycol, mcol, fmt)
 
     def show(self, prefix='', nperline=4):
         """Return a string of statistics about this SpecScan instance.
@@ -687,7 +687,7 @@ class SpecPlot(object):
         self.xcol = None
         self.x2col = None
 
-    def doplot(self, ycol, mcol, fmt=''):
+    def do_plot(self, ycol, mcol, fmt):
         """Generates a plot according to the provided kwargs."""
         twod = istwod(self.scan)
         norm = mcol is not None
