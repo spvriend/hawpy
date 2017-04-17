@@ -64,8 +64,8 @@ def get_mesh_dims(scan):
 
     mesh_cmd = scan.header.scan_cmd.split()
     xint = int(mesh_cmd[4])
-    yint = int(mesh_cmd[8])
-    mesh_dims = (xint, yint)
+    x2int = int(mesh_cmd[8])
+    mesh_dims = (xint, x2int)
     return mesh_dims
 
 def istwod(scan):
@@ -739,7 +739,7 @@ class SpecPlot(object):
         plt.figure()
 
         if twod:
-            self.do_mesh_plot(plotx, ploty)
+            self.do_mesh_plot(plotx, ploty, ycol)
 
         else:
             self.do_std_plot(plotx, ploty, fmt, y_label)
@@ -790,32 +790,32 @@ class SpecPlot(object):
         if isinstance(self.x2col, str):
             self.x2col = self.scan.cols.index(self.x2col)
 
-    def do_mesh_plot(self, plotx, ploty):
+    def do_mesh_plot(self, plotx, ploty, ycol):
         """Plot the mesh scan data."""        
         j = 1j
-        xint, yint = get_mesh_dims(self.scan)
+        xint, x2int = get_mesh_dims(self.scan)
         grid_x, grid_y = np.mgrid[min(plotx[:, 0]):
                                   max(plotx[:, 0]):xint*j,
                                   min(plotx[:, 1]):
-                                  max(plotx[:, 1]):yint*j]
+                                  max(plotx[:, 1]):x2int*j]
         if __verbose__:
             print '---- xint = {}'.format(xint)
-            print '---- yint = {}'.format(yint)
+            print '---- x2int = {}'.format(x2int)
 
         grid_z = griddata(plotx, ploty,
                           (grid_x, grid_y), method='linear')
 
         plt.pcolormesh(grid_x, grid_y, grid_z, cmap='inferno')
-        plt.colorbar()
+        plt.colorbar(label=self.scan.header.labels[ycol])
 
         plt.xlim(min(plotx[:, 0]), max(plotx[:, 0]))
         plt.ylim(min(plotx[:, 1]), max(plotx[:, 1]))
 
         plt.xlabel(self.scan.header.labels[self.xcol])
-        plt.xlabel(self.scan.header.labels[self.x2col])
+        plt.ylabel(self.scan.header.labels[self.x2col])
        
     def do_std_plot(self, plotx, ploty, fmt, y_label):
-        """Plot a standard x- vs. y-axis plot."""        
+        """Plot a standard x- vs. y-axis plot."""
         self.plt = plt.plot(plotx, ploty, fmt)
 
         plt.xlabel(self.scan.header.labels[self.xcol])
@@ -825,7 +825,7 @@ class SpecPlot(object):
         
         
 if __name__ == '__main__':
-    __verbose__ = False
+    # __verbose__ = False
     
     LNSCO = SpecDataFile('LNSCO')
     
