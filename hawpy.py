@@ -460,10 +460,10 @@ class SpecScan(object):
         """Return the motormap dict from the specfile."""
         return self.specfile.motormap
                     
-    def plot(self, **kwargs):
+    def plot(self, norm=False, ycol='ChT_REIXS', mcol='I0_BD3', fmt=''):
         """Return a SpecPlot object according to the arguments."""  
-        plot = SpecPlot(self, **kwargs)
-        plot.doplot()
+        plot = SpecPlot(self)
+        plot.doplot(norm, ycol, mcol, fmt)
 
     def show(self, prefix='', nperline=4):
         """Return a string of statistics about this SpecScan instance.
@@ -693,26 +693,23 @@ class SpecPlot(object):
         self.xcol = None
         self.x2col = None
 
-    def doplot(self, norm=False, ycol='ChT_REIXS', mcol='I0_BD3', fmt=''):
-        """Generates a plot according to the provided kwargs."""
+    def doplot(self, norm, ycol, mcol, fmt=''):
+        """Generates a plot according to the provided kwargs."""       
         twod = istwod(self.scan)
-
-        if twod:
-            ycol = 'TEY_REIXS'
 
         scan_cmd = self.scan.header.scan_cmd
         motormap = self.scan.get_motormap()
         labels = self.scan.header.labels
-        
+
         self.set_x_axis_indices(scan_cmd, motormap, labels)
 
         self.check_x_type()
         self.labels_to_indices()
 
         if isinstance(ycol, str):
-            ycol = self.scan.header.labels.index(ycol)
+            ycol = labels.index(ycol)
         if isinstance(mcol, str):
-            mcol = self.scan.header.labels.index(mcol)
+            mcol = labels.index(mcol)
 
         plotx = self.scan.data.raw[:, self.xcol]
         if self.x2col != None:
@@ -735,9 +732,9 @@ class SpecPlot(object):
                                                 self.scan.cols[mcol])
         else:
             ploty = self.scan.data.raw[:, ycol]
-            y_label = self.scan.header.labels[ycol]
+            y_label = labels[ycol]
             if __verbose__:
-                print '---- y = {}'.format(self.scan.header.labels[ycol])
+                print '---- y = {}'.format(labels[ycol])
 
         plt.figure()
 
@@ -750,42 +747,34 @@ class SpecPlot(object):
 
         plt.title('{} {} {} {}\n{}'.format(self.scan.specfile.filename,
                                            self.scan.header.scan_no, ' - ',
-                                           self.scan.header.date,
-                                           self.scan.header.scan_cmd))
+                                           self.scan.header.date, scan_cmd))
         self.is_plotted = True
         plt.show()
 
     def set_x_axis_indices(self, scan_cmd, motormap, labels):
-        """Set values for the x axes according to the scan type."""
-        if self.xcol is None:
-            if scan_cmd.split()[2] == 'mesh':
-                # Get the motors used in the scan command.
-                mnem1 = scan_cmd.split()[1]
-                mnem2 = scan_cmd.split()[4]
-                print mnem1
-                print mnem2
-                
-                # Turn the mnemonics into full names.
-                name1 = motormap[mnem1]
-                name2 = motormap[mnem2]
-                print name1
-                print name2
-                
-                # Get the indices for the full names.
-                self.xcol = labels.index(name1)
-                self.x2col = labels.index(name2)
-                print self.xcol
-                print self.x2col
-            else:
-                mnem = scan_cmd.split()[1]
-                name = motormap[mnem]
-                self.xcol = labels.index(name)
-                self.x2col = None
-                print self.xcol
-                print self.x2col
+        """Set values for the x axes according to the scan type."""        
+        command = scan_cmd.split()
+        
+        if command[0] == 'mesh':
+            # Get the motors used in the scan command.
+            mnem1 = command[1]
+            mnem2 = command[5]
+            
+            # Turn the mnemonics into full names.
+            name1 = motormap[mnem1]
+            name2 = motormap[mnem2]
 
+            # Get the indices for the full names.
+            self.xcol = labels.index(name1)
+            self.x2col = labels.index(name2)
+        else:
+            mnem = command[1]
+            name = motormap[mnem]
+            self.xcol = labels.index(name)
+            self.x2col = None
+                
     def check_x_type(self):
-        """Check that the x-axes have the right type."""
+        """Check that the x-axes have the right type."""        
         if isinstance(self.xcol, list) or isinstance(self.xcol, np.ndarray):
             self.xcol = self.xcol[0]
             self.x2col = self.xcol[1]
@@ -793,16 +782,16 @@ class SpecPlot(object):
             if not isinstance(self.xcol, int) and not isinstance(self.xcol, str):
                 raise Exception("Illegal {} : xcol can only be 'int', 'list'\
                                  or 'np.ndarray'.".format(type(self.xcol)))
-
+                                 
     def labels_to_indices(self):
-        """Converts the axis labels to indices."""
+        """Converts the axis labels to indices."""       
         if isinstance(self.xcol, str):
             self.xcol = self.scan.cols.index(self.xcol)
         if isinstance(self.x2col, str):
             self.x2col = self.scan.cols.index(self.x2col)
 
     def do_mesh_plot(self, plotx, ploty):
-        """Plot the mesh scan data."""
+        """Plot the mesh scan data."""        
         j = 1j
         xint, yint = get_mesh_dims(self.scan)
         grid_x, grid_y = np.mgrid[min(plotx[:, 0]):
@@ -824,16 +813,16 @@ class SpecPlot(object):
 
         plt.xlabel(self.scan.header.labels[self.xcol])
         plt.xlabel(self.scan.header.labels[self.x2col])
-
+       
     def do_std_plot(self, plotx, ploty, fmt, y_label):
-        """Plot a standard x- vs. y-axis plot."""
+        """Plot a standard x- vs. y-axis plot."""        
         self.plt = plt.plot(plotx, ploty, fmt)
 
         plt.xlabel(self.scan.header.labels[self.xcol])
         plt.ylabel(y_label)
 
         plt.xlim(min(plotx), max(plotx))
-
+        
         
 if __name__ == '__main__':
     __verbose__ = False
@@ -848,5 +837,5 @@ if __name__ == '__main__':
     
     # Test mesh plot.
     SCAN2 = YBCO[11]
-    SCAN2.plot()
+    SCAN2.plot(ycol='TEY_REIXS')
     
