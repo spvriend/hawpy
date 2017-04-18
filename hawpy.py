@@ -476,7 +476,7 @@ class SpecScan(object):
     def do_plot(self, ycol='ChT_REIXS', mcol=None, fmt=''):
         """Produce a plot according to the keyword arguments."""
         plot = SpecPlot(self)
-        plot.do_plot(ycol, mcol, fmt)
+        plot.show(ycol, mcol, fmt)
 
     def show(self, prefix='', nperline=4):
         """Return a string of statistics about this SpecScan instance.
@@ -687,7 +687,7 @@ class SpecPlot(object):
         self.xcol = None
         self.x2col = None
 
-    def do_plot(self, ycol, mcol, fmt):
+    def show(self, ycol, mcol, fmt):
         """Generates a plot according to the provided kwargs."""
         twod = istwod(self.scan)
         norm = mcol is not None
