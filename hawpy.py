@@ -822,6 +822,7 @@ if __name__ == '__main__':
 
     YBCO = SpecDataFile('YBCO_XAS')
     SCAN2 = YBCO[11]
+    SCAN3 = YBCO[9]
 
     # Test standard plot.
     SCAN1.do_plot(ycol='ChT_REIXS')
@@ -834,3 +835,7 @@ if __name__ == '__main__':
 
     # Test mesh plot with normalization.
     SCAN2.do_plot(ycol='TEY_REIXS', mcol='I0_BD3')
+    
+    # Test mesh plot.
+    SCAN3.do_plot(ycol='TEY_REIXS')
+
