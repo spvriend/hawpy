@@ -473,10 +473,10 @@ class SpecScan(object):
         """Return the motormap dict from the specfile."""
         return self.specfile.motormap
 
-    def do_plot(self, ycol='ChT_REIXS', mcol='I0_BD3', fmt=''):
+    def do_plot(self, ycol='ChT_REIXS', mcol='I0_BD3', fmt='', **kwargs):
         """Produce a plot according to the keyword arguments."""
         plot = SpecPlot(self)
-        plot.show(ycol, mcol, fmt)
+        plot.show(ycol, mcol, fmt, **kwargs)
 
     def show(self, prefix='', nperline=4):
         """Return a string of statistics about this SpecScan instance.
@@ -687,7 +687,7 @@ class SpecPlot(object):
         self.xcol = None
         self.x2col = None
 
-    def show(self, ycol, mcol, fmt):
+    def show(self, ycol, mcol, fmt, **kwargs):
         """Generates a plot according to the provided kwargs."""
         twod = istwod(self.scan)
         norm = mcol is not None
@@ -732,10 +732,10 @@ class SpecPlot(object):
         plt.figure()
 
         if twod:
-            self.do_mesh_plot(plotx, ploty, y_label)
+            self.do_mesh_plot(plotx, ploty, y_label, **kwargs)
 
         else:
-            self.do_std_plot(plotx, ploty, fmt, y_label)
+            self.do_std_plot(plotx, ploty, fmt, y_label, **kwargs)
 
 
         plt.title('{} {} {} {}\n{}'.format(self.scan.specfile.filename,
@@ -782,7 +782,7 @@ class SpecPlot(object):
         if isinstance(self.x2col, str):
             self.x2col = self.scan.cols.index(self.x2col)
 
-    def do_mesh_plot(self, plotx, ploty, y_label):
+    def do_mesh_plot(self, plotx, ploty, y_label, **kwargs):
         """Plot the mesh scan data."""
         xint, x2int = get_mesh_dims(self.scan)
         grid_x, grid_y = np.mgrid[min(plotx[:, 0]):
@@ -795,7 +795,7 @@ class SpecPlot(object):
 
         grid_z = griddata(plotx, ploty, (grid_x, grid_y))
 
-        plt.pcolormesh(grid_x, grid_y, grid_z, cmap='inferno')
+        plt.pcolormesh(grid_x, grid_y, grid_z, cmap='inferno', **kwargs)
         plt.colorbar(label=y_label)
 
         plt.xlim(min(plotx[:, 0]), max(plotx[:, 0]))
@@ -804,15 +804,14 @@ class SpecPlot(object):
         plt.xlabel(self.scan.header.labels[self.xcol])
         plt.ylabel(self.scan.header.labels[self.x2col])
 
-    def do_std_plot(self, plotx, ploty, fmt, y_label):
+    def do_std_plot(self, plotx, ploty, fmt, y_label, **kwargs):
         """Plot a standard x- vs. y-axis plot."""
-        plt.plot(plotx, ploty, fmt)
-
         plt.xlabel(self.scan.header.labels[self.xcol])
         plt.ylabel(y_label)
 
         plt.xlim(min(plotx), max(plotx))
 
+        plt.plot(plotx, ploty, fmt, **kwargs)
 
 if __name__ == '__main__':
     __verbose__ = True
