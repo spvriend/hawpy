@@ -1,10 +1,6 @@
-# Select a few points on your curve and have data to be scaled and offset to
-# those points. Done in Igor frequently.
-# Start with one point which you'll offset multiple curves to
-# Choose one x-value, call that y-value zero
-# Choose one x-value, call that y-value one
-
-
+# hawpy.py (c) Silas Vriend 2017
+# Silas Vriend. Hawthorn Research Group. Winter 2017.
+# University of Waterloo Department of Physics and Astronomy.
 
 """A module of graphing routines which make use of hawpy."""
 
@@ -26,6 +22,14 @@ def lorentzian(x, x0, gamma):
     y = (1.0 / (math.pi*gamma)) * (1.0 / (1 + ((x-x0) / float(gamma))**2))
     return y
 
+def offset():
+    # Select a few points on your curve and have data to be scaled and offset to
+    # those points. Done in Igor frequently.
+    # Start with one point which you'll offset multiple curves to
+    # Choose one x-value, call that y-value zero
+    # Choose one x-value, call that y-value one
+    pass
+    
 def plot_scan_range(filename, start, end, 
                     xcol='TwoTheta', ycol='ChT_REIXS', mcol='I0_BD3'):
     """A routine for plotting a range of consecutive scans."""
@@ -107,13 +111,12 @@ def plot_lorentzian_fit(filename, scan_no, xcol='TwoTheta',
     
     plt.legend()
     plt.show()
-    
+
 
 # Function aliases.
 plotR = plot_scan_range
 plotMT = plot_multiple_traces
 plotLF = plot_lorentzian_fit
-    
     
     
 if __name__ == '__main__':

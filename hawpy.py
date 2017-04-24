@@ -18,19 +18,19 @@ your script:
 
 Classes:
 
-    SpecDataFile :
+    SpecDataFile
         Acts as a spec-specific file object, with scan indexing built in.
 
-    SpecScan :
+    SpecScan
         A class which represents one or more scans, which may be plotted.
 
-    SpecScanHeader :
+    SpecScanHeader
         Contains information from the scan header for a SpecScan object.
 
-    SpecScanData :
+    SpecScanData
         Contains the raw numerical data for a SpecScan object.
 
-    SpecPlot :
+    SpecPlot
         Contains methods to plot standard x- vs. y-axis data and to plot
         two-dimensional mesh images.
 
@@ -838,4 +838,3 @@ if __name__ == '__main__':
     
     # Test mesh plot.
     SCAN3.do_plot(ycol='TEY_REIXS')
-
