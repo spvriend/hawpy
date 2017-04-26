@@ -123,8 +123,9 @@ Note the spacing between select words.
 
 ## Potential Areas for Further Development
 
-To develop further a command line interface for hawpy, the interactive mode of
-pyplot could be used. See http://matplotlib.org/faq/usage_faq.html for details.
+To develop further a command-line application using python, the following
+webpage could be a good starting point: 
+http://python-guide-pt-br.readthedocs.io/en/latest/scenarios/cli/
 
 For data persistence, the shelve module could be used. See 
 https://docs.python.org/2/library/shelve.html for the documentation.
