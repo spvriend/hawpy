@@ -131,7 +131,7 @@ https://docs.python.org/2/library/shelve.html for the documentation.
 
 ## pyplot Interactive Mode
 
-When using hawpy through a terminal such as IPython or Windows PowerShell, it
+When using hawpy through the Python interpreter or IPython, it
 is often useful to use pyplot's interactive model. See the [Matplotlib usage 
 FAQ](https://matplotlib.org/faq/usage_faq.html#what-is-interactive-mode) for
 more details. To enter interactive mode, enter the following lines of code:
