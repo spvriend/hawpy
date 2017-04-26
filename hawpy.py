@@ -106,10 +106,15 @@ class SpecDataFile(object):
     """Acts as a spec-specific file object.
 
     To create a SpecScan object, call SpecDataFile[num], where `num` is
-    the scan number as an integer, or a list of integer scan numbers.
+    the scan number as an integer. For example:
+    
+        datafile = hawpy.SpecDataFile('LNSCO')
+        scan_obj = datafile[298]
 
     To print a string of statistics on the spec file, pass the SpecDataFile
-    instance in a print statement.
+    instance in a print statement. For example:
+    
+        print datafile
 
     Parameters
     ----------
@@ -593,8 +598,6 @@ class SpecScanData(object):
         """Initializes an instance of the SpecScanData class."""
         self.raw = np.array([])
         self.cols = {}
-        self.row_nums = np.array([])
-        self.scan_nums = np.array([])
 
     def __str__(self):
         """Call show() when the class is passed in a print statement."""
@@ -749,16 +752,13 @@ class SpecPlot(object):
 
         if command[0] == 'mesh':
             # Get the motors used in the scan command.
-            mnem1 = command[1]
-            mnem2 = command[5]
+            mnem1, mnem2 = command[1], command[5]
 
             # Turn the mnemonics into full names.
-            name1 = motormap[mnem1]
-            name2 = motormap[mnem2]
+            name1, name2 = motormap[mnem1], motormap[mnem2]
 
             # Get the indices for the full names.
-            self.xcol = labels.index(name1)
-            self.x2col = labels.index(name2)
+            self.xcol, self.x2col = labels.index(name1), labels.index(name2)
         else:
             mnem = command[1]
             name = motormap[mnem]

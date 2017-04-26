@@ -1,4 +1,5 @@
 # hawpy.py (c) Silas Vriend 2017
+#
 # Silas Vriend. Hawthorn Research Group. Winter 2017.
 # University of Waterloo Department of Physics and Astronomy.
 
@@ -22,12 +23,7 @@ def lorentzian(x, x0, gamma):
     y = (1.0 / (math.pi*gamma)) * (1.0 / (1 + ((x-x0) / float(gamma))**2))
     return y
 
-def offset():
-    # Select a few points on your curve and have data to be scaled and offset to
-    # those points. Done in Igor frequently.
-    # Start with one point which you'll offset multiple curves to
-    # Choose one x-value, call that y-value zero
-    # Choose one x-value, call that y-value one
+def zero_to_one():
     pass
 
 def plot_scan_range(filename, start, end,
