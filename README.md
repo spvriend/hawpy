@@ -128,3 +128,13 @@ pyplot could be used. See http://matplotlib.org/faq/usage_faq.html for details.
 
 For data persistence, the shelve module could be used. See 
 https://docs.python.org/2/library/shelve.html for the documentation.
+
+## pyplot Interactive Mode
+
+When using hawpy through a terminal such as IPython or Windows PowerShell, it
+is often useful to use pyplot's interactive model. See the [Matplotlib usage 
+FAQ](https://matplotlib.org/faq/usage_faq.html#what-is-interactive-mode) for
+more details. To enter interactive mode, enter the following lines of code:
+
+	import matplotlib.pyplot as plt
+	plt.ion()
