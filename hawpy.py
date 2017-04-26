@@ -662,7 +662,6 @@ class SpecScanData(object):
         info += '\n'
         return info
 
-
 class SpecPlot(object):
     """This class represents a standard x-axis vs. y-axis plot.
 
@@ -729,7 +728,7 @@ class SpecPlot(object):
 
         fig, ax = plt.subplots()
 
-        ax.title('{} {} {} {}\n{}'.format(self.scan.specfile.filename,
+        ax.set_title('{} {} {} {}\n{}'.format(self.scan.specfile.filename,
                                           self.scan.header.scan_no, ' - ',
                                           self.scan.header.date, scan_cmd))
         
