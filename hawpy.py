@@ -665,6 +665,11 @@ class SpecScanData(object):
 class SpecPlot(object):
     """This class represents a standard x-axis vs. y-axis plot.
 
+    Parameters
+    ----------
+    specscan : SpecScan object
+        The SpecScan object from which to graph data.
+    
     Attributes
     ----------
     scan : SpecScan object
