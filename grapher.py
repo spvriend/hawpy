@@ -74,65 +74,6 @@ def plot_multiple_traces(filename, scanlist, xcol='TwoTheta',
     return plot
     
 
-def scale_offset(self, reg1, reg2):
-    """This function performs a scale and offset on a given plot.
-    
-    The basic algorithm for a scale and offset is this:
-    
-        Select region 1. Region 1 is the region to offset relative to. For
-        simplicity, this will be a single x-value.
-        
-        Select region 2. Region 2 is the region to scale relative to. For
-        simpliticty, this will also be a single x-value.
-        
-        For each trace on the plot: determine the y-value of the trace at the
-        x-value in region 1. Subtract that y-value from the entire trace.
-        
-        For each trace on the plot: determine the y-value of the trace at the
-        x-value in region 2. Divide the entire trace by that y-value, unless
-        the y-value is zero.
-        
-    """
-    maxexp = 0
-    
-    # Find the overall order of magnitude.
-    for line in self.lines:
-        ydata = line.get_ydata()
-        maxy = max(ydata)
-        exp = math.floor(math.log10(maxy))
-        
-        if exp > maxexp:
-            maxexp = exp
-
-    # Perform the offset.
-    for line in self.lines:
-        xdata = line.get_xdata()
-        ydata = line.get_ydata()
-        
-        index = bisect_left(xdata, reg1)
-        offset = ydata[index]
-        
-        ydata -= offset
-        
-        line.set_ydata(ydata)
-    
-    # Then perform the scale.
-    for line in lines:
-        xdata = line.get_xdata()
-        ydata = line.get_ydata()
-
-        index = bisect_left(xdata, reg2)
-        scale_factor = ydata[index]
-        
-        ydata /= scale_factor
-        ydata *= 10**maxexp
-        
-        line.set_ydata(ydata)
-
-    
-    
-
-
 # Function aliases.
 plotR = plot_scan_range
 plotMT = plot_multiple_traces
