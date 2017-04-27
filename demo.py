@@ -1,5 +1,5 @@
-import matplotlib.pyplot as plt
 import hawpy as hp
+import matplotlib.pyplot as plt
 
 hp.__verbose__ = False
 
@@ -21,6 +21,7 @@ SCAN1.do_plot(ycol='ChT_REIXS', mcol=None)
 #   but they can be modified with the getter and setter methods shown below.
 PLOT3 = SCAN1.do_plot(ycol='ChT_REIXS')
 PLOT3.set_title('This is a standard plot with a custom title.')
+PLOT3.title_append(' Neat!')
 PLOT3.set_xlabel('Two Theta (degrees)')
 PLOT3.ylabel_append(' (arb.units)')
 
@@ -34,6 +35,7 @@ SCAN2.do_plot(ycol='TEY_REIXS', mcol=None)
 # This allows for editing of the title, colorbar label and axis labels.
 PLOT6 = SCAN3.do_plot(ycol='TEY_REIXS')
 PLOT6.set_title('This is a mesh plot with a custom title.')
+PLOT6.title_append(' Wow!')
 PLOT6.set_clb_label('TEY_REIXS / I0_BD3 (arb. units)')
 PLOT6.xlabel_append(' (mm)')
 PLOT6.ylabel_append(' (mm)')
