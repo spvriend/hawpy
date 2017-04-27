@@ -1007,9 +1007,11 @@ if __name__ == '__main__':
     PLOT3.set_xlabel('Two Theta (degrees)')
     PLOT3.ylabel_append(' (arb.units)')
     
+    #STANDARD PLOT TEST with Lorentzian fit.
     PLOT4 = SCAN1.do_plot(ycol='ChT_REIXS')
     PLOT4.lorentz_fit()
     
+    # STANDARD PLOT TEST with Lorentzian fit and zero-to-one offset/scale.
     PLOT5 = SCAN1.do_plot(ycol='ChT_REIXS')
     PLOT5.lorentz_fit()
     PLOT5.scale_offset(124, 125.5)
@@ -1028,12 +1030,12 @@ if __name__ == '__main__':
     #   SpecPlot class. This is because the current implementation of the 
     #   matplotlib.colorbar.Colorbar class does not have a get_label() method.
     #
-    PLOT6 = SCAN3.do_plot(ycol='TEY_REIXS')
-    PLOT6.set_title('This is a mesh plot with a custom title.')
-    PLOT6.title_append(' Wow!')
-    PLOT6.set_clb_label('TEY_REIXS / I0_BD3 (arb. units)')
-    PLOT6.xlabel_append(' (mm)')
-    PLOT6.ylabel_append(' (mm)')
+    PLOT8 = SCAN3.do_plot(ycol='TEY_REIXS')
+    PLOT8.set_title('This is a mesh plot with a custom title.')
+    PLOT8.title_append(' Wow!')
+    PLOT8.set_clb_label('TEY_REIXS / I0_BD3 (arb. units)')
+    PLOT8.xlabel_append(' (mm)')
+    PLOT8.ylabel_append(' (mm)')
 
     # Calling plt.show() at the very end shows all of the plots at once.
     #   Calling it earlier would mean that the plots created after the call to
