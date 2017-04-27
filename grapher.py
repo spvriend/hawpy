@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 
 from matplotlib import cm
+from bisect import bisect_left
 
 
 def lorentzian(x, x0, gamma):
@@ -25,9 +26,9 @@ def plot_scan_range(filename, start, end,
     """A routine for plotting a range of consecutive scans."""
     scanrange = [x for x in range(start, end+1)]
     try:
-        fig, ax, lines = plot_multiple_traces(filename, scanrange, xcol, 
-                                              ycol, mcol, **kwargs)
-        return fig, ax, lines
+        plot = plot_multiple_traces(filename, scanrange, 
+                                    xcol, ycol, mcol, **kwargs)
+        return plot
     except ValueError:
         print 'Please esnsure that all scans in the range are of the same type.'
     
@@ -73,7 +74,9 @@ def plot_multiple_traces(filename, scanlist, xcol='TwoTheta',
     else:
         ax.set_ylabel('{}'.format(ycol))
     
-    return fig, ax, lines
+    plot = (fig, ax, lines)
+    
+    return plot
     
 def plot_lorentzian_fit(filename, scan_no, xcol='TwoTheta',
                         ycol='ChT_REIXS', mcol='I0_BD3'):
@@ -116,9 +119,11 @@ def plot_lorentzian_fit(filename, scan_no, xcol='TwoTheta',
         
     ax.legend()
     
-    return fig, ax, lines
+    plot = (fig, ax, lines)
+    
+    return plot
 
-def scale_offset(plot, region1, region2):
+def scale_offset(plot, reg1, reg2):
     """This function performs a scale and offset on a given plot.
     
     The basic algorithm for a scale and offset is this:
@@ -135,10 +140,49 @@ def scale_offset(plot, region1, region2):
         For each trace on the plot: determine the y-value of the trace at the
         x-value in region 2. Divide the entire trace by that y-value, unless
         the y-value is zero.
+        
     """
     
-    pass
+    fig, ax, lines = plot
     
+    maxexp = 0
+    
+    # Find the overall order of magnitude.
+    for line in lines:
+        ydata = line.get_ydata()
+        maxy = max(ydata)
+        exp = math.floor(math.log10(maxy))
+        
+        if exp > maxexp:
+            maxexp = exp
+
+    # Perform the offset.
+    for line in lines:
+        xdata = line.get_xdata()
+        ydata = line.get_ydata()
+        
+        index = bisect_left(xdata, reg1)
+        offset = ydata[index]
+        
+        ydata -= offset
+        
+        line.set_ydata(ydata)
+    
+    # Then perform the scale.
+    for line in lines:
+        xdata = line.get_xdata()
+        ydata = line.get_ydata()
+
+        index = bisect_left(xdata, reg2)
+        scale_factor = ydata[index]
+        
+        ydata /= scale_factor
+        ydata *= 10**maxexp
+        
+        line.set_ydata(ydata)
+        
+    
+
 
 # Function aliases.
 plotR = plot_scan_range
@@ -153,11 +197,16 @@ if __name__ == '__main__':
     SCANLIST = [173, 169, 165, 161, 155, 151, 147, 143, 139,
                 135, 103, 131, 127, 125, 121, 117, 109, 113]
     
-    plotMT('LNSCO', SCANLIST, xcol='TwoTheta',
+    PLOT1 = plotMT('LNSCO', SCANLIST, xcol='TwoTheta',
+                         ycol='ChT_REIXS', mcol='I0_BD3', linewidth=0.5)
+                         
+    PLOT2 = plotMT('LNSCO', SCANLIST, xcol='TwoTheta',
                          ycol='ChT_REIXS', mcol='I0_BD3', linewidth=0.5)
 
-    plotLF('LNSCO', 298, xcol='TwoTheta', ycol='ChT_REIXS', mcol='I0_BD3')
+    PLOT2 = plotLF('LNSCO', 298, xcol='TwoTheta', ycol='ChT_REIXS', mcol='I0_BD3')
 
-    plotR('LNSCO', 6, 9, xcol='MonoEngy', ycol='MCP_REIXS', mcol=None)
+    PLOT3 = plotR('LNSCO', 6, 9, xcol='MonoEngy', ycol='MCP_REIXS', mcol=None)
+    
+    scale_offset(PLOT2, 58, 60)
     
     plt.show()
