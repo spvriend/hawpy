@@ -43,6 +43,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 
+from matplotlib import cm
 from bisect import bisect_left
 from scipy.interpolate import griddata
 
@@ -694,15 +695,15 @@ class SpecPlot(object):
 
     lines : list of matplotlib.lines.Line2D instances
         A list of all the Line2D objects (analogous to traces) in the figure.
-        
+
     xcol : None or int
         The index of the first independent scan variable.
-        
+
     x2col : None or int
         The index of the second independent scan variable.
     """
 
-    def __init__(self, specscan):
+    def __init__(self, specscan=None):
         """Initialize an instance of the SpecPlot class."""
         self.scan = specscan
         self.fig, self.ax = plt.subplots()
@@ -711,6 +712,8 @@ class SpecPlot(object):
         self.lines = []
         self.xcol = None
         self.x2col = None
+
+
 
     def do_plot(self, ycol, mcol, fmt, **kwargs):
         """Generates a plot according to the provided kwargs."""
@@ -759,12 +762,87 @@ class SpecPlot(object):
                                           self.scan.header.date, scan_cmd))
 
         if twod:
-            self.mesh, self.clb = self.do_mesh_plot(plotx, ploty, 
+            self.mesh, self.clb = self.do_mesh_plot(plotx, ploty,
                                                     y_label, **kwargs)
         else:
             line = self.do_std_plot(plotx, ploty, fmt, y_label, **kwargs)
             self.lines.append(line)
+    
+    def plot_multiple_traces(self, specfile, scanlist, fmt='',
+                             ycol='ChT_REIXS', mcol='I0_BD3', **kwargs):
+        """A routine for plotting a range of scans, coloured according to order.
 
+        Any keyword arguments passed through the **kwargs paramter must be
+        keyword arguments for the pyplot.plot() function. See the Matplotlib API
+        docs for more details.
+        """
+        i = 0
+        
+        for scan_no in scanlist:
+            scan = specfile[scan_no]
+            norm = mcol is not None
+            
+            scan_no = scan.header.scan_no
+            scan_cmd = scan.header.scan_cmd
+            motormap = scan.get_motormap()
+            labels = scan.header.labels
+
+            self.set_x_axis_indices(scan_cmd, motormap, labels)
+            
+            self.check_x_type()
+            self.labels_to_indices()
+
+            if isinstance(ycol, str):
+                ycol = labels.index(ycol)
+            if isinstance(mcol, str):
+                mcol = labels.index(mcol)
+
+            plotx = scan.data.raw[:, self.xcol]
+
+            if norm:
+                ploty = scan.data.raw[:, ycol]/scan.data.raw[:, mcol]
+            else:
+                ploty = scan.data.raw[:, ycol]
+
+            xdata = labels[self.xcol]
+            ydata = ycol
+            color_map = cm.get_cmap(name='gist_rainbow')
+
+            line, = self.ax.plot(plotx, ploty, label='S{}'.format(scan_no),
+                                 color=color_map(1 - float(i)/len(scanlist)), 
+                                 **kwargs)
+            self.lines.append(line)
+            i += 1
+
+        if __verbose__:
+            print '**** Plotting multiple scans.'
+            print '---- x = {}'.format(labels[self.xcol])
+        
+        self.ax.set_title('{}{}Multiple {} scans.'.format(scan.specfile.filename,
+                                                ' - ', scan_cmd.split()[0]))
+        
+        if norm:
+            y_label = '{} / {}'.format(labels[ycol], labels[mcol])
+            if __verbose__:
+                print '---- y = {} / {}'.format(labels[ycol], labels[mcol])
+        else:
+            y_label = labels[ycol]
+            if __verbose__:
+                print '---- y = {}'.format(labels[ycol])
+        
+        self.ax.set_xlabel(scan.header.labels[self.xcol])
+        self.ax.set_ylabel(y_label)
+        self.ax.legend()
+
+    def plot_scan_range(self, specfile, start, end, fmt='',
+                        ycol='ChT_REIXS', mcol='I0_BD3', **kwargs):
+        """A routine for plotting a range of consecutive scans."""
+        scanrange = [x for x in range(start, end+1)]
+        try:
+            self.plot_multiple_traces(specfile, scanrange, fmt, ycol, mcol, **kwargs)
+        except ValueError:
+            print 'Please ensure that scans in the range are of the same type.'
+        
     def set_x_axis_indices(self, scan_cmd, motormap, labels):
         """Set values for the x axes according to the scan type."""
         command = scan_cmd.split()
@@ -831,41 +909,42 @@ class SpecPlot(object):
         self.ax.set_xlim(min(plotx), max(plotx))
 
         scan_no = self.scan.header.scan_no
-        
-        line, = self.ax.plot(plotx, ploty, fmt, 
+
+        line, = self.ax.plot(plotx, ploty, fmt,
                              label='S{}'.format(scan_no), **kwargs)
-        
+
         self.ax.legend()
-        
+
         return line
+
 
     def scale_offset(self, reg1, reg2):
         """This function performs a scale and offset on a given plot.
-        
+
         The basic algorithm for a scale and offset is this:
-        
+
             Select region 1. Region 1 is the region to offset relative to. For
             simplicity, this will be a single x-value.
-            
+
             Select region 2. Region 2 is the region to scale relative to. For
             simpliticty, this will also be a single x-value.
-            
+
             For each trace on the plot: determine the y-value of the trace at the
             x-value in region 1. Subtract that y-value from the entire trace.
-            
+
             For each trace on the plot: determine the y-value of the trace at the
             x-value in region 2. Divide the entire trace by that y-value, unless
             the y-value is zero.
-            
+
         """
         maxexp = 0
-        
+
         # Find the overall order of magnitude.
         for line in self.lines:
             ydata = line.get_ydata()
             maxy = max(ydata)
             exp = math.floor(math.log10(maxy))
-            
+
             if exp > maxexp:
                 maxexp = exp
 
@@ -873,14 +952,14 @@ class SpecPlot(object):
         for line in self.lines:
             xdata = line.get_xdata()
             ydata = line.get_ydata()
-            
+
             index = bisect_left(xdata, reg1)
             offset = ydata[index]
-            
+
             ydata -= offset
-            
+
             line.set_ydata(ydata)
-        
+
         # Then perform the scale.
         for line in self.lines:
             xdata = line.get_xdata()
@@ -888,12 +967,12 @@ class SpecPlot(object):
 
             index = bisect_left(xdata, reg2)
             scale_factor = ydata[index]
-            
+
             ydata /= scale_factor
             ydata *= 10**maxexp
-            
-            line.set_ydata(ydata)    
-        
+
+            line.set_ydata(ydata)
+
     def lorentz_fit(self):
         """Perform Lorentzian fits of all of the traces on the graph."""
         linestofit = self.lines[:]
@@ -905,17 +984,17 @@ class SpecPlot(object):
             ydata /= ymax
 
             popt, pcov = opt.curve_fit(lorentzian, xdata, ydata)
-            
+
             fitdata = lorentzian(xdata, *popt)
 
             ydata *= ymax
             fitdata *= ymax
-            
+
             lfit = self.ax.plot(xdata, fitdata, label='Lorentzian fit.\nx0={}\n$\gamma={}$'.format(popt[0], popt[1]))
             self.lines.extend(lfit)
-            
+
         self.ax.legend()
-    
+
     def get_title(self):
         """Return the current plot title."""
         title = self.ax.get_title()
@@ -965,6 +1044,14 @@ class SpecPlot(object):
         newlabel += addstr
         self.set_title(newlabel)
 
+    # Function aliases.
+    plotR = plot_scan_range
+    plotMT = plot_multiple_traces
+    plotLF = lorentz_fit
+    zero2one = scale_offset
+
+
+        
 
 if __name__ == '__main__':
     # The following is a test script to demonstrate the features of this module.
@@ -1006,11 +1093,11 @@ if __name__ == '__main__':
     PLOT3.title_append(' Neat!')
     PLOT3.set_xlabel('Two Theta (degrees)')
     PLOT3.ylabel_append(' (arb.units)')
-    
+
     #STANDARD PLOT TEST with Lorentzian fit.
     PLOT4 = SCAN1.do_plot(ycol='ChT_REIXS')
     PLOT4.lorentz_fit()
-    
+
     # STANDARD PLOT TEST with Lorentzian fit and zero-to-one offset/scale.
     PLOT5 = SCAN1.do_plot(ycol='ChT_REIXS')
     PLOT5.lorentz_fit()
@@ -1027,7 +1114,7 @@ if __name__ == '__main__':
     # This allows for editing of the title, colorbar label and axis labels.
     #
     # Note that there is not a get_clb_label or clb_label_append method for the
-    #   SpecPlot class. This is because the current implementation of the 
+    #   SpecPlot class. This is because the current implementation of the
     #   matplotlib.colorbar.Colorbar class does not have a get_label() method.
     #
     PLOT8 = SCAN3.do_plot(ycol='TEY_REIXS')
@@ -1037,6 +1124,16 @@ if __name__ == '__main__':
     PLOT8.xlabel_append(' (mm)')
     PLOT8.ylabel_append(' (mm)')
 
+    SCANLIST = [173, 169, 165, 161, 155, 151, 147, 143, 139,
+                135, 103, 131, 127, 125, 121, 117, 109, 113]
+    
+    PLOT9 = SpecPlot()
+    PLOT9.plotMT(LNSCO, SCANLIST)
+    
+    PLOT10 = SpecPlot()
+    PLOT10.plotR(LNSCO, 6, 9, ycol='MCP_REIXS', mcol=None)
+    
+    
     # Calling plt.show() at the very end shows all of the plots at once.
     #   Calling it earlier would mean that the plots created after the call to
     #   plt.show() would not be displayed.
