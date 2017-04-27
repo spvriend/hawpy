@@ -39,13 +39,15 @@ Classes:
 import time
 import math
 
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.optimize as opt
+from bisect import bisect_left
 
 from matplotlib import cm
-from bisect import bisect_left
+import matplotlib.pyplot as plt
+
 from scipy.interpolate import griddata
+import scipy.optimize as opt
+
+import numpy as np
 
 __verbose__ = True
 
@@ -707,7 +709,6 @@ class SpecPlot(object):
         """Initialize an instance of the SpecPlot class."""
         self.scan = specscan
         self.fig, self.ax = plt.subplots()
-        self.mesh = None
         self.clb = None
         self.lines = []
         self.xcol = None
@@ -755,17 +756,17 @@ class SpecPlot(object):
             if __verbose__:
                 print '---- y = {}'.format(labels[ycol])
 
-        self.ax.set_title('{} {} {} {}\n{}'.format(self.scan.specfile.filename,
-                                          self.scan.header.scan_no, ' - ',
-                                          self.scan.header.date, scan_cmd))
+        self.ax.set_title('{} {}{}{}\n{}'.format(self.scan.specfile.filename,
+                                                 self.scan.header.scan_no,
+                                                 ' - ', self.scan.header.date,
+                                                 scan_cmd))
 
         if twod:
-            self.mesh, self.clb = self.do_mesh_plot(plotx, ploty,
-                                                    y_label, **kwargs)
+            self.clb = self.do_mesh_plot(plotx, ploty, y_label, **kwargs)
         else:
             line = self.do_std_plot(plotx, ploty, fmt, y_label, **kwargs)
             self.lines.append(line)
-    
+
     def plot_multiple_traces(self, specfile, scanlist, fmt='',
                              ycol='ChT_REIXS', mcol='I0_BD3', **kwargs):
         """A routine for plotting a range of scans, coloured according to order.
@@ -775,18 +776,18 @@ class SpecPlot(object):
         docs for more details.
         """
         i = 0
-        
+
         for scan_no in scanlist:
             scan = specfile[scan_no]
             norm = mcol is not None
-            
+
             scan_no = scan.header.scan_no
             scan_cmd = scan.header.scan_cmd
             motormap = scan.get_motormap()
             labels = scan.header.labels
 
             self.set_x_axis_indices(scan_cmd, motormap, labels)
-            
+
             self.check_x_type()
             self.labels_to_indices()
 
@@ -807,7 +808,7 @@ class SpecPlot(object):
             color_map = cm.get_cmap(name='gist_rainbow')
 
             line, = self.ax.plot(plotx, ploty, label='S{}'.format(scan_no),
-                                 color=color_map(1 - float(i)/len(scanlist)), 
+                                 color=color_map(1 - float(i)/len(scanlist)),
                                  **kwargs)
             self.lines.append(line)
             i += 1
@@ -815,10 +816,10 @@ class SpecPlot(object):
         if __verbose__:
             print '**** Plotting multiple scans.'
             print '---- x = {}'.format(labels[self.xcol])
-        
+
         self.ax.set_title('{}{}Multiple {} scans.'.format(scan.specfile.filename,
-                                                ' - ', scan_cmd.split()[0]))
-        
+                                                          ' - ', scan_cmd.split()[0]))
+
         if norm:
             y_label = '{} / {}'.format(labels[ycol], labels[mcol])
             if __verbose__:
@@ -827,7 +828,7 @@ class SpecPlot(object):
             y_label = labels[ycol]
             if __verbose__:
                 print '---- y = {}'.format(labels[ycol])
-        
+
         self.ax.set_xlabel(scan.header.labels[self.xcol])
         self.ax.set_ylabel(y_label)
         self.ax.legend()
@@ -840,7 +841,7 @@ class SpecPlot(object):
             self.plot_multiple_traces(specfile, scanrange, fmt, ycol, mcol, **kwargs)
         except ValueError:
             print 'Please ensure that scans in the range are of the same type.'
-        
+
     def set_x_axis_indices(self, scan_cmd, motormap, labels):
         """Set values for the x axes according to the scan type."""
         command = scan_cmd.split()
@@ -888,7 +889,7 @@ class SpecPlot(object):
 
         grid_z = griddata(plotx, ploty, (grid_x, grid_y))
 
-        mesh = plt.pcolormesh(grid_x, grid_y, grid_z, cmap='inferno', **kwargs)
+        plt.pcolormesh(grid_x, grid_y, grid_z, cmap='inferno', **kwargs)
         clb = plt.colorbar(label=y_label)
 
         self.ax.set_xlim(min(plotx[:, 0]), max(plotx[:, 0]))
@@ -897,7 +898,7 @@ class SpecPlot(object):
         self.ax.set_xlabel(self.scan.header.labels[self.xcol])
         self.ax.set_ylabel(self.scan.header.labels[self.x2col])
 
-        return mesh, clb
+        return clb
 
     def do_std_plot(self, plotx, ploty, fmt, y_label, **kwargs):
         """Plot a standard x- vs. y-axis plot."""
@@ -985,7 +986,10 @@ class SpecPlot(object):
             ydata *= ymax
             fitdata *= ymax
 
-            lfit = self.ax.plot(xdata, fitdata, label='Lorentzian fit.\nx0={}\n$\gamma={}$'.format(popt[0], popt[1]))
+            label = 'Lorentzian fit.\n$x_0$={}\n$\gamma={}$'.format(popt[0],
+                                                                    popt[1])
+
+            lfit = self.ax.plot(xdata, fitdata, label=label)
             self.lines.extend(lfit)
 
         self.ax.legend()
@@ -1059,15 +1063,15 @@ if __name__ == '__main__':
     SCAN2 = YBCO[11]
     SCAN3 = YBCO[9]
 
-    
+
     # STANDARD PLOT TEST.
     SCAN1.do_plot(ycol='ChT_REIXS')
 
-    
+
     # STANDARD PLOT TEST without normalization.
     SCAN1.do_plot(ycol='ChT_REIXS', mcol=None)
 
-    
+
     # STANDARD PLOT TEST using object oriented methods.
     #
     # This allows for editing of the plot title and the axis labels.
@@ -1090,41 +1094,41 @@ if __name__ == '__main__':
     PLOT3.set_xlabel('Two Theta (degrees)')
     PLOT3.ylabel_append(' (arb.units)')
 
-    
+
     #STANDARD PLOT TEST with Lorentzian fit.
     PLOT4 = SCAN1.do_plot(ycol='ChT_REIXS')
     PLOT4.lorentz_fit()
 
-    
+
     # STANDARD PLOT TEST with Lorentzian fit and zero-to-one offset/scale.
     PLOT5 = SCAN1.do_plot(ycol='ChT_REIXS')
     PLOT5.lorentz_fit()
     PLOT5.scale_offset(124, 125.5)
 
-    
+
     # STANDARD PLOT TEST with multiple scans.
     SCANLIST = [173, 169, 165, 161, 155, 151, 147, 143, 139,
                 135, 103, 131, 127, 125, 121, 117, 109, 113]
-    
+
     PLOT6 = SpecPlot()
     PLOT6.plotMT(LNSCO, SCANLIST)
     PLOT6.set_title('This is multiple scans, coloured in order.')
-    
-    
+
+
     # STANDARD PLOT TEST with a range of scans.
     PLOT7 = SpecPlot()
     PLOT7.plotR(LNSCO, 6, 9, ycol='MCP_REIXS', mcol=None)
     PLOT7.set_title('This is a range of scans.')
 
-    
+
     # MESH PLOT TEST.
     SCAN2.do_plot(ycol='TEY_REIXS')
 
-    
+
     # MESH PLOT TEST without normalization.
     SCAN2.do_plot(ycol='TEY_REIXS', mcol=None)
 
-    
+
     # MESH PLOT TEST using object oriented methods.
     #
     # This allows for editing of the title, colorbar label and axis labels.
