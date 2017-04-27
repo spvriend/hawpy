@@ -868,6 +868,8 @@ class SpecPlot(object):
 
 if __name__ == '__main__':
     # The following is a test script to demonstrate the features of this module.
+    # This code is not executed if this module is imported in a different
+    #   script or module.
     __verbose__ = False
 
     LNSCO = SpecDataFile('LNSCO')
@@ -877,35 +879,54 @@ if __name__ == '__main__':
     SCAN2 = YBCO[11]
     SCAN3 = YBCO[9]
 
-
-    # Test standard plot with normalization.
+    # STANDARD PLOT TEST.
     SCAN1.do_plot(ycol='ChT_REIXS')
 
-    # Test standard plot without normalization.
+    # STANDARD PLOT TEST without normalization.
     SCAN1.do_plot(ycol='ChT_REIXS', mcol=None)
 
-    # Test standard plot using object oriented method, with normalization.
+    # STANDARD PLOT TEST using object oriented methods.
+    #
     # This allows for editing of the plot title and the axis labels.
+    #
+    # The SpecPlot class sets the title and x- and y-axis labels automatically,
+    #   but they can be modified with the getter and setter methods shown below.
+    #
+    # Function aliasing could be used to make the commands shorter.
+    #   For example, one could add the following lines of code to the body of
+    #   the SpecPlot class:
+    #
+    #       setXL = set_xlabel
+    #       setYL = set_ylabel
+    #       appXL = xlabel_append
+    #       appYL = ylabel_append
+    #
     PLOT3 = SCAN1.do_plot(ycol='ChT_REIXS')
     PLOT3.set_title('This is a standard plot with a custom title.')
     PLOT3.set_xlabel('Two Theta (degrees)')
     PLOT3.ylabel_append(' (arb.units)')
 
-
-    # Test mesh plot with normalization.
+    # MESH PLOT TEST.
     SCAN2.do_plot(ycol='TEY_REIXS')
 
-    # Test mesh plot without normalization.
+    # MESH PLOT TEST without normalization.
     SCAN2.do_plot(ycol='TEY_REIXS', mcol=None)
 
-    # Test mesh plot using object oriented method.
+    # MESH PLOT TEST using object oriented methods.
+    #
     # This allows for editing of the title, colorbar label and axis labels.
+    #
+    # Note that there is not a get_clb_label or clb_label_append method for the
+    #   SpecPlot class. This is because the current implementation of the 
+    #   matplotlib.colorbar.Colorbar class does not have a get_label() method.
+    #
     PLOT6 = SCAN3.do_plot(ycol='TEY_REIXS')
     PLOT6.set_title('This is a mesh plot with a custom title.')
     PLOT6.set_clb_label('TEY_REIXS / I0_BD3 (arb. units)')
     PLOT6.xlabel_append(' (mm)')
     PLOT6.ylabel_append(' (mm)')
 
-
     # Calling plt.show() at the very end shows all of the plots at once.
+    #   Calling it earlier would mean that the plots created after the call to
+    #   plt.show() would not be displayed.
     plt.show()
