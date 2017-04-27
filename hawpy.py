@@ -37,14 +37,22 @@ Classes:
 """
 
 import time
+import math
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.optimize as opt
 
+from bisect import bisect_left
 from scipy.interpolate import griddata
 
 __verbose__ = True
 
+
+def lorentzian(x, x0, gamma):
+    """Returns the y value of the Lorentzian distribution for the given x."""
+    y = (1.0 / (math.pi*gamma)) * (1.0 / (1 + ((x-x0) / float(gamma))**2))
+    return y
 
 def get_mesh_dims(scan):
     """Return a tuple containing the dimensions of the mesh grid.
@@ -686,14 +694,23 @@ class SpecPlot(object):
 
     lines : list of matplotlib.lines.Line2D instances
         A list of all the Line2D objects (analogous to traces) in the figure.
+        
+    xcol : None or int
+        The index of the first independent scan variable.
+        
+    x2col : None or int
+        The index of the second independent scan variable.
     """
 
     def __init__(self, specscan):
         """Initialize an instance of the SpecPlot class."""
         self.scan = specscan
         self.fig, self.ax = plt.subplots()
+        self.mesh = None
         self.clb = None
         self.lines = []
+        self.xcol = None
+        self.x2col = None
 
     def do_plot(self, ycol, mcol, fmt, **kwargs):
         """Generates a plot according to the provided kwargs."""
@@ -742,7 +759,8 @@ class SpecPlot(object):
                                           self.scan.header.date, scan_cmd))
 
         if twod:
-            self.clb = self.do_mesh_plot(plotx, ploty, y_label, **kwargs)
+            self.mesh, self.clb = self.do_mesh_plot(plotx, ploty, 
+                                                    y_label, **kwargs)
         else:
             line = self.do_std_plot(plotx, ploty, fmt, y_label, **kwargs)
             self.lines.append(line)
@@ -794,28 +812,55 @@ class SpecPlot(object):
 
         grid_z = griddata(plotx, ploty, (grid_x, grid_y))
 
-        plt.pcolormesh(grid_x, grid_y, grid_z, cmap='inferno', **kwargs)
+        mesh = plt.pcolormesh(grid_x, grid_y, grid_z, cmap='inferno', **kwargs)
         clb = plt.colorbar(label=y_label)
 
-        plt.xlim(min(plotx[:, 0]), max(plotx[:, 0]))
-        plt.ylim(min(plotx[:, 1]), max(plotx[:, 1]))
+        self.ax.set_xlim(min(plotx[:, 0]), max(plotx[:, 0]))
+        self.ax.set_ylim(min(plotx[:, 1]), max(plotx[:, 1]))
 
-        plt.xlabel(self.scan.header.labels[self.xcol])
-        plt.ylabel(self.scan.header.labels[self.x2col])
+        self.ax.set_xlabel(self.scan.header.labels[self.xcol])
+        self.ax.set_ylabel(self.scan.header.labels[self.x2col])
 
-        return clb
+        return mesh, clb
 
     def do_std_plot(self, plotx, ploty, fmt, y_label, **kwargs):
         """Plot a standard x- vs. y-axis plot."""
-        plt.xlabel(self.scan.header.labels[self.xcol])
-        plt.ylabel(y_label)
+        self.ax.set_xlabel(self.scan.header.labels[self.xcol])
+        self.ax.set_ylabel(y_label)
 
-        plt.xlim(min(plotx), max(plotx))
+        self.ax.set_xlim(min(plotx), max(plotx))
 
-        line, = plt.plot(plotx, ploty, fmt, **kwargs)
-
+        scan_no = self.scan.header.scan_no
+        
+        line, = self.ax.plot(plotx, ploty, fmt, 
+                             label='S{}'.format(scan_no), **kwargs)
+        
+        self.ax.legend()
+        
         return line
 
+    def lorentz_fit(self):
+        """Perform Lorentzian fits of all of the traces on the graph."""
+        linestofit = self.lines[:]
+        for line in linestofit:
+            xdata = line.get_xdata()
+            ydata = line.get_ydata()
+
+            ymax = max(ydata)
+            ydata /= ymax
+
+            popt, pcov = opt.curve_fit(lorentzian, xdata, ydata)
+            
+            fitdata = lorentzian(xdata, *popt)
+
+            ydata *= ymax
+            fitdata *= ymax
+            
+            lfit = self.ax.plot(xdata, fitdata, label='Lorentzian fit.\nx0={}\n$\gamma={}$'.format(popt[0], popt[1]))
+            self.lines.extend(lfit)
+            
+        self.ax.legend()
+    
     def get_title(self):
         """Return the current plot title."""
         title = self.ax.get_title()
@@ -848,19 +893,19 @@ class SpecPlot(object):
         self.ax.set_ylabel(ylabel)
 
     def xlabel_append(self, addstr):
-        """Adds `addstr` to the end of the existing x-axis label."""
+        """Add the string to the end of the existing x-axis label."""
         newlabel = self.get_xlabel()
         newlabel += addstr
         self.set_xlabel(newlabel)
 
     def ylabel_append(self, addstr):
-        """Adds `addstr` to the end of the existing y-axis label."""
+        """Add the string to the end of the existing y-axis label."""
         newlabel = self.get_ylabel()
         newlabel += addstr
         self.set_ylabel(newlabel)
 
     def title_append(self, addstr):
-        """Adds `addstr` to the end of the existing title."""
+        """Add the string to the end of the existing title."""
         newlabel = self.get_title()
         newlabel += addstr
         self.set_title(newlabel)
@@ -903,8 +948,12 @@ if __name__ == '__main__':
     #
     PLOT3 = SCAN1.do_plot(ycol='ChT_REIXS')
     PLOT3.set_title('This is a standard plot with a custom title.')
+    PLOT3.title_append(' Neat!')
     PLOT3.set_xlabel('Two Theta (degrees)')
     PLOT3.ylabel_append(' (arb.units)')
+    
+    PLOT4 = SCAN1.do_plot(ycol='ChT_REIXS')
+    PLOT4.lorentz_fit()
 
     # MESH PLOT TEST.
     SCAN2.do_plot(ycol='TEY_REIXS')
@@ -922,6 +971,7 @@ if __name__ == '__main__':
     #
     PLOT6 = SCAN3.do_plot(ycol='TEY_REIXS')
     PLOT6.set_title('This is a mesh plot with a custom title.')
+    PLOT6.title_append(' Wow!')
     PLOT6.set_clb_label('TEY_REIXS / I0_BD3 (arb. units)')
     PLOT6.xlabel_append(' (mm)')
     PLOT6.ylabel_append(' (mm)')

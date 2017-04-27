@@ -16,11 +16,6 @@ from matplotlib import cm
 from bisect import bisect_left
 
 
-def lorentzian(x, x0, gamma):
-    """Returns the y value of the Lorentzian distribution for the given x."""
-    y = (1.0 / (math.pi*gamma)) * (1.0 / (1 + ((x-x0) / float(gamma))**2))
-    return y
-
 def plot_scan_range(filename, start, end,
                     xcol='TwoTheta', ycol='ChT_REIXS', mcol='I0_BD3', **kwargs):
     """A routine for plotting a range of consecutive scans."""
@@ -78,52 +73,8 @@ def plot_multiple_traces(filename, scanlist, xcol='TwoTheta',
     
     return plot
     
-def plot_lorentzian_fit(filename, scan_no, xcol='TwoTheta',
-                        ycol='ChT_REIXS', mcol='I0_BD3'):
-    """Perform and plot a Lorentzian fit of the given xy plot."""
-    specfile = hawpy.SpecDataFile(filename)
 
-    scan = specfile[scan_no]
-    xdata = getattr(scan, xcol)
-    ydata = getattr(scan, ycol)
-    
-    fig, ax = plt.subplots()
-    
-    if mcol is not None:
-        mdata = getattr(scan, mcol)
-        ydata /= mdata
-
-    ymax = max(ydata)
-
-    ydata /= ymax
-
-    popt, pcov = opt.curve_fit(lorentzian, xdata, ydata)
-
-    fit_ydata = lorentzian(xdata, *popt)
-
-    ydata *= ymax
-    fit_ydata *= ymax
-
-    ax.set_title('Lorentzian fit of S{}'.format(scan_no))
-    ax.set_xlabel('{}'.format(xcol))
-
-    if mcol is not None:
-        ax.set_ylabel('{} / {}'.format(ycol, mcol))
-    else:
-        ax.set_ylabel('{}'.format(ycol))
-
-    line1, = plt.plot(xdata, fit_ydata, label='Lorentzian fit.\nx0={}\n$\gamma={}$'.format(popt[0], popt[1]))
-    line2, = plt.plot(xdata, ydata, label='S{}'.format(scan_no))
-
-    lines = line1, line2
-        
-    ax.legend()
-    
-    plot = (fig, ax, lines)
-    
-    return plot
-
-def scale_offset(plot, reg1, reg2):
+def scale_offset(self, reg1, reg2):
     """This function performs a scale and offset on a given plot.
     
     The basic algorithm for a scale and offset is this:
@@ -142,13 +93,10 @@ def scale_offset(plot, reg1, reg2):
         the y-value is zero.
         
     """
-    
-    fig, ax, lines = plot
-    
     maxexp = 0
     
     # Find the overall order of magnitude.
-    for line in lines:
+    for line in self.lines:
         ydata = line.get_ydata()
         maxy = max(ydata)
         exp = math.floor(math.log10(maxy))
@@ -157,7 +105,7 @@ def scale_offset(plot, reg1, reg2):
             maxexp = exp
 
     # Perform the offset.
-    for line in lines:
+    for line in self.lines:
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         
@@ -180,7 +128,8 @@ def scale_offset(plot, reg1, reg2):
         ydata *= 10**maxexp
         
         line.set_ydata(ydata)
-        
+
+    
     
 
 
