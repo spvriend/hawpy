@@ -107,13 +107,13 @@ class SpecDataFile(object):
 
     To create a SpecScan object, call SpecDataFile[num], where `num` is
     the scan number as an integer. For example:
-    
+
         datafile = hawpy.SpecDataFile('LNSCO')
         scan_obj = datafile[298]
 
     To print a string of statistics on the spec file, pass the SpecDataFile
     instance in a print statement. For example:
-    
+
         print datafile
 
     Parameters
@@ -481,8 +481,8 @@ class SpecScan(object):
     def do_plot(self, ycol='ChT_REIXS', mcol='I0_BD3', fmt='', **kwargs):
         """Produce a plot according to the keyword arguments."""
         plot = SpecPlot(self)
-        fig, ax, trace = plot.show(ycol, mcol, fmt, **kwargs)
-        return fig, ax, trace
+        plot.do_plot(ycol, mcol, fmt, **kwargs)
+        return plot
 
     def show(self, prefix='', nperline=4):
         """Return a string of statistics about this SpecScan instance.
@@ -663,33 +663,39 @@ class SpecScanData(object):
         return info
 
 class SpecPlot(object):
-    """This class represents a standard x-axis vs. y-axis plot.
+    """Represents a single figure with data from one or more SpecScan instances.
 
     Parameters
     ----------
     specscan : SpecScan object
         The SpecScan object from which to graph data.
-    
+
     Attributes
     ----------
     scan : SpecScan object
         The SpecScan object from which to graph data.
 
-    xcol : array_like
-        The x-data for the plot.
+    fig : matplotlib.figure.Figure instance
+        The figure window which this object will plot to.
 
-    x2col : array_like
-        The x2-data for the plot if it is a two-dimensional plot.
+    ax : matplotlib.axes.Axes instance
+        The axes which this object will plot to.
 
+    clb : None or matplotlib.colorbar.Colorbar instance
+        The colorbar which is generated if the plot is a mesh plot.
+
+    lines : list of matplotlib.lines.Line2D instances
+        A list of all the Line2D objects (analogous to traces) in the figure.
     """
 
     def __init__(self, specscan):
         """Initialize an instance of the SpecPlot class."""
         self.scan = specscan
-        self.xcol = None
-        self.x2col = None
+        self.fig, self.ax = plt.subplots()
+        self.clb = None
+        self.lines = []
 
-    def show(self, ycol, mcol, fmt, **kwargs):
+    def do_plot(self, ycol, mcol, fmt, **kwargs):
         """Generates a plot according to the provided kwargs."""
         twod = istwod(self.scan)
         norm = mcol is not None
@@ -731,18 +737,15 @@ class SpecPlot(object):
             if __verbose__:
                 print '---- y = {}'.format(labels[ycol])
 
-        fig, ax = plt.subplots()
-
-        ax.set_title('{} {} {} {}\n{}'.format(self.scan.specfile.filename,
+        self.ax.set_title('{} {} {} {}\n{}'.format(self.scan.specfile.filename,
                                           self.scan.header.scan_no, ' - ',
                                           self.scan.header.date, scan_cmd))
-        
+
         if twod:
-            clb = self.do_mesh_plot(plotx, ploty, y_label, **kwargs)
-            return fig, ax, clb
+            self.clb = self.do_mesh_plot(plotx, ploty, y_label, **kwargs)
         else:
             line = self.do_std_plot(plotx, ploty, fmt, y_label, **kwargs)
-            return fig, ax, line
+            self.lines.append(line)
 
     def set_x_axis_indices(self, scan_cmd, motormap, labels):
         """Set values for the x axes according to the scan type."""
@@ -799,7 +802,7 @@ class SpecPlot(object):
 
         plt.xlabel(self.scan.header.labels[self.xcol])
         plt.ylabel(self.scan.header.labels[self.x2col])
-        
+
         return clb
 
     def do_std_plot(self, plotx, ploty, fmt, y_label, **kwargs):
@@ -810,8 +813,58 @@ class SpecPlot(object):
         plt.xlim(min(plotx), max(plotx))
 
         line, = plt.plot(plotx, ploty, fmt, **kwargs)
-        
+
         return line
+
+    def get_title(self):
+        """Return the current plot title."""
+        title = self.ax.get_title()
+        return title
+
+    def get_xlabel(self):
+        """Return the current y-axis label."""
+        xlabel = self.ax.get_xlabel()
+        return xlabel
+
+    def get_ylabel(self):
+        """Return the current y-axis label."""
+        ylabel = self.ax.get_ylabel()
+        return ylabel
+
+    def set_clb_label(self, clblabel):
+        """Set the colorbar label."""
+        self.clb.set_label(clblabel)
+
+    def set_title(self, title):
+        """Set the title of the figure."""
+        self.ax.set_title(title)
+
+    def set_xlabel(self, xlabel):
+        """Set the x-axis label."""
+        self.ax.set_xlabel(xlabel)
+
+    def set_ylabel(self, ylabel):
+        """Set the y-axis label."""
+        self.ax.set_ylabel(ylabel)
+
+    def xlabel_append(self, addstr):
+        """Adds `addstr` to the end of the existing x-axis label."""
+        newlabel = self.get_xlabel()
+        newlabel += addstr
+        self.set_xlabel(newlabel)
+
+    def ylabel_append(self, addstr):
+        """Adds `addstr` to the end of the existing y-axis label."""
+        newlabel = self.get_ylabel()
+        newlabel += addstr
+        self.set_ylabel(newlabel)
+
+    def title_append(self, addstr):
+        """Adds `addstr` to the end of the existing title."""
+        newlabel = self.get_title()
+        newlabel += addstr
+        self.set_title(newlabel)
+
 
 if __name__ == '__main__':
     # The following is a test script to demonstrate the features of this module.
@@ -819,53 +872,40 @@ if __name__ == '__main__':
 
     LNSCO = SpecDataFile('LNSCO')
     YBCO = SpecDataFile('YBCO_XAS')
-    
+
     SCAN1 = LNSCO[298]
     SCAN2 = YBCO[11]
     SCAN3 = YBCO[9]
 
-    
+
     # Test standard plot with normalization.
     SCAN1.do_plot(ycol='ChT_REIXS')
-    
+
     # Test standard plot without normalization.
     SCAN1.do_plot(ycol='ChT_REIXS', mcol=None)
-      
+
     # Test standard plot using object oriented method, with normalization.
     # This allows for editing of the plot title and the axis labels.
-    fig1, ax1, line = SCAN1.do_plot(ycol='ChT_REIXS')
-    
-    ax1.set_title('This is a standard plot with a custom title.')
-    
-    ax1.set_xlabel('Two Theta (degrees)')
-        
-    newlabel = ax1.get_ylabel()
-    newlabel += ' (arb.units)'
-    ax1.set_ylabel(newlabel)
-    
-    
+    PLOT3 = SCAN1.do_plot(ycol='ChT_REIXS')
+    PLOT3.set_title('This is a standard plot with a custom title.')
+    PLOT3.set_xlabel('Two Theta (degrees)')
+    PLOT3.ylabel_append(' (arb.units)')
+
+
     # Test mesh plot with normalization.
     SCAN2.do_plot(ycol='TEY_REIXS')
-    
+
     # Test mesh plot without normalization.
     SCAN2.do_plot(ycol='TEY_REIXS', mcol=None)
-        
+
     # Test mesh plot using object oriented method.
     # This allows for editing of the title, colorbar label and axis labels.
-    fig2, ax2, clb = SCAN3.do_plot(ycol='TEY_REIXS')
-    
-    ax2.set_title('This is a mesh plot with a custom title.')
-    
-    newlabel = ax2.get_xlabel()
-    newlabel += ' (mm)'
-    ax2.set_xlabel(newlabel)
+    PLOT6 = SCAN3.do_plot(ycol='TEY_REIXS')
+    PLOT6.set_title('This is a mesh plot with a custom title.')
+    PLOT6.set_clb_label('TEY_REIXS / I0_BD3 (arb. units)')
+    PLOT6.xlabel_append(' (mm)')
+    PLOT6.ylabel_append(' (mm)')
 
-    newlabel = ax2.get_ylabel()
-    newlabel += ' (mm)'
-    ax2.set_ylabel(newlabel)
-    
-    clb.set_label('TEY_REIXS / I0_BD3 (arb. units)')
-    
-    
+
     # Calling plt.show() at the very end shows all of the plots at once.
     plt.show()
