@@ -521,7 +521,7 @@ class SpecScan(object):
 
     # Function aliases.
     pl = do_plot
-        
+
 class SpecScanHeader(object):
     """This class contains information from the scan header.
 
@@ -716,7 +716,7 @@ class SpecPlot(object):
         self.lines = []
         self.xcol = None
         self.x2col = None
-        
+
     def do_plot(self, ycol, mcol, fmt, **kwargs):
         """Generates a plot according to the provided kwargs."""
         twod = istwod(self.scan)
@@ -922,25 +922,25 @@ class SpecPlot(object):
 
         The basic algorithm for a scale and offset is this:
 
-            Select region 1. Region 1 is the region to offset relative to. 
+            Select region 1. Region 1 is the region to offset relative to.
             For simplicity, this will be a single x-value.
 
             Select region 2. Region 2 is the region to scale relative to. For
             simpliticty, this will also be a single x-value.
 
-            For each trace on the plot: determine the y-value of the trace at 
-            the x-value in region 1. Subtract that y-value from the entire 
+            For each trace on the plot: determine the y-value of the trace at
+            the x-value in region 1. Subtract that y-value from the entire
             trace.
 
-            For each trace on the plot: determine the y-value of the trace at 
-            the x-value in region 2. Divide the entire trace by that y-value, 
+            For each trace on the plot: determine the y-value of the trace at
+            the x-value in region 2. Divide the entire trace by that y-value,
             unless the y-value is zero.
 
         """
         maxexp = 0
         maxy = 0
         miny = 0
-       
+
         # Find the overall order of magnitude.
         for line in self.lines:
             ydata = line.get_ydata()
@@ -966,7 +966,7 @@ class SpecPlot(object):
         for line in self.lines:
             xdata = line.get_xdata()
             ydata = line.get_ydata()
-            
+
             index = bisect_left(xdata, reg2)
             scale_factor = ydata[index]
 
@@ -975,16 +975,16 @@ class SpecPlot(object):
             else:
                 print 'Zero division error.'
                 return
-                
+
             ydata *= 10**maxexp
 
             line.set_ydata(ydata)
-            
+
             if max(ydata) > maxy:
                 maxy = max(ydata)
             if min(ydata) < miny:
                 miny = min(ydata)
-            
+
         self.ax.set_ylim(miny, maxy)
 
     def lorentz_fit(self):
@@ -1029,8 +1029,8 @@ class SpecPlot(object):
 
     def set_clb_label(self, clblabel):
         """Set the colorbar label.
-        
-        Note that there is not a get_clb_label or clb_label_append method for 
+
+        Note that there is not a get_clb_label or clb_label_append method for
         the SpecPlot class. This is because the current implementation of the
         matplotlib.colorbar.Colorbar class does not have a get_label() method.
         """
@@ -1071,12 +1071,12 @@ class SpecPlot(object):
     plMT = plot_multiple_traces
     Lfit = lorentz_fit
     zero2one = offset_and_scale
-    
+
     setTL = set_title
     setXL = set_xlabel
     setYL = set_ylabel
     setCBL = set_clb_label
-    
+
     appTL = title_append
     appXL = xlabel_append
     appYL = ylabel_append
